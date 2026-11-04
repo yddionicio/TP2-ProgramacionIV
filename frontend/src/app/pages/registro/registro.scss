@@ -1,0 +1,44 @@
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.fila {
+  display: flex;
+  gap: 12px;
+  mat-form-field { flex: 1; }
+}
+
+.archivo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.error-texto {
+  color: #b3261e;
+  font-size: 12px;
+  margin: -8px 0 12px;
+}
+
+.pie {
+  padding: 16px;
+  text-align: center;
+}
