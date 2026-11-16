@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
+import { createReadStream, unlinkSync } from 'fs';
 
 @Injectable()
 export class CloudinaryService {
@@ -22,7 +23,9 @@ export class CloudinaryService {
           transformation: [{ width: 1200, crop: 'limit' }], // limita el tamaño al subir
         },
         (error, result) => {
-          if (error || !result) return reject(new BadRequestException('No se pudo subir la imagen'));
+          if (error || !result) {
+            return reject(new BadRequestException(`No se pudo subir la imagen: ${error?.message ?? 'error desconocido'}`));
+          }
           resolve({
             // f_auto,q_auto: Cloudinary entrega el mejor formato y calidad para cada navegador
             url: result.secure_url.replace('/upload/', '/upload/f_auto,q_auto/'),
@@ -30,7 +33,18 @@ export class CloudinaryService {
           });
         },
       );
-      Readable.from(file.buffer).pipe(stream);
+
+      if (file.buffer) {
+        Readable.from(file.buffer).pipe(stream);
+      } else if (file.path) {
+        const fileStream = createReadStream(file.path);
+        fileStream.pipe(stream);
+        fileStream.on('close', () => {
+          try { unlinkSync(file.path); } catch {}
+        });
+      } else {
+        reject(new BadRequestException('El archivo de imagen no contiene datos válidos'));
+      }
     });
   }
 }

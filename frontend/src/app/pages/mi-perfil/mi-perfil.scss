@@ -1,4 +1,42 @@
 .contenedor { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 .datos { display: flex; gap: 24px; padding: 24px; margin-bottom: 24px; align-items: center; }
 .foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
-.item { display: flex; flex-direction: row; gap: 16px; margin-bottom: 12px; img { width: 140px; object-fit: cover; } }
+.avatar-defecto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3f51b5;
+  color: white;
+  font-size: 36px;
+  font-weight: 500;
+}
+.item {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  margin-bottom: 12px;
+  img { width: 140px; object-fit: cover; border-radius: 4px 0 0 4px; }
+}
+.mensaje-estado, .mensaje-vacio {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  color: #5f6368;
+  font-size: 14px;
+  border: 1px dashed #dadce0;
+  margin: 16px 0;
+}
+.usuario-rol {
+  color: #555;
+  .rol {
+    text-transform: capitalize;
+    background: #e8eaf6;
+    color: #3f51b5;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+}
+.correo, .fecha { color: #666; font-size: 14px; margin: 4px 0; }
+.descripcion { margin-top: 8px; color: #333; }

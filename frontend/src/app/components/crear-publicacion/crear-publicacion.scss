@@ -1,2 +1,38 @@
-.formulario { display: flex; flex-direction: column; gap: 8px; min-width: min(480px, 80vw); }
-.error { color: #b3261e; font-size: 13px; }
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: min(480px, 80vw);
+  padding-top: 8px;
+}
+.error, .alerta-error {
+  color: #b3261e;
+  background: #fdf2f2;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid #f8d7da;
+}
+.campo-archivo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.etiqueta-archivo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #555;
+}
+.archivo-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+}

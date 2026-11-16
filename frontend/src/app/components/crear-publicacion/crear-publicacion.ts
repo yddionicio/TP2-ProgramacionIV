@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
 @Component({
   selector: 'app-crear-publicacion',
   imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
@@ -27,26 +29,58 @@ export class CrearPublicacion {
   });
 
   onFile(e: Event) {
-    const f = (e.target as HTMLInputElement).files?.[0] ?? null;
+    const input = e.target as HTMLInputElement;
+    const f = input.files?.[0] ?? null;
     this.error = '';
-    if (f && !f.type.startsWith('image/')) { this.error = 'El archivo debe ser una imagen'; this.archivo = null; return; }
-    if (f && f.size > 3 * 1024 * 1024) { this.error = 'La imagen no puede superar los 3 MB'; this.archivo = null; return; }
+    if (!f) return;
+    if (!f.type.startsWith('image/')) {
+      this.error = 'El archivo seleccionado debe ser una imagen válida (JPG, PNG, GIF, WEBP).';
+      this.archivo = null;
+      input.value = '';
+      return;
+    }
+    if (f.size > MAX_SIZE_BYTES) {
+      this.error = 'La imagen seleccionada supera el límite máximo permitido de 10 MB.';
+      this.archivo = null;
+      input.value = '';
+      return;
+    }
     this.archivo = f;
   }
 
+  quitarArchivo() {
+    this.archivo = null;
+    this.error = '';
+  }
+
   publicar() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     const fd = new FormData();
-    fd.append('titulo', this.form.controls.titulo.value);
-    fd.append('mensaje', this.form.controls.mensaje.value);
-    if (this.archivo) fd.append('imagen', this.archivo); // mismo nombre que en el FileInterceptor
+    fd.append('titulo', this.form.controls.titulo.value.trim());
+    fd.append('mensaje', this.form.controls.mensaje.value.trim());
+    if (this.archivo) {
+      fd.append('imagen', this.archivo);
+    }
 
     this.enviando = true;
+    this.error = '';
+
     this.api.crear(fd).subscribe({
       next: () => this.ref.close(true),
       error: (e) => {
         this.enviando = false;
-        this.error = Array.isArray(e.error?.message) ? e.error.message.join('. ') : (e.error?.message ?? 'No se pudo publicar');
+        if (e.status === 413) {
+          this.error = 'La imagen o el contenido es demasiado pesado. El límite máximo es de 10 MB.';
+        } else if (e.status === 0) {
+          this.error = 'No se pudo conectar con el servidor. Verificá tu conexión o que el backend esté corriendo.';
+        } else if (Array.isArray(e.error?.message)) {
+          this.error = e.error.message.join('. ');
+        } else {
+          this.error = e.error?.message ?? 'Ocurrió un error inesperado al publicar. Por favor, intentá nuevamente.';
+        }
       },
     });
   }

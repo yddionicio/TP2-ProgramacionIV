@@ -16,12 +16,24 @@ import { Sesion } from '../../services/sesion';
 export class MiPerfil implements OnInit {
   sesion = inject(Sesion);
   private api = inject(PublicacionesApi);
+
   ultimas = signal<Publicacion[]>([]);
+  cargando = signal(true);
 
   ngOnInit() {
     const u = this.sesion.usuario();
-    if (!u) return;
-    this.api.listar({ orden: 'fecha', usuario: u._id, offset: 0, limit: 3 })
-      .subscribe((r) => this.ultimas.set(r.items));
+    if (!u) {
+      this.cargando.set(false);
+      return;
+    }
+    this.api.listar({ orden: 'fecha', usuario: u._id, offset: 0, limit: 3 }).subscribe({
+      next: (r) => {
+        this.ultimas.set(r.items);
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+      },
+    });
   }
 }

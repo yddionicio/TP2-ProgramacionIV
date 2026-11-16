@@ -16,8 +16,16 @@ import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
 
 @Component({
   selector: 'app-publicaciones',
-  imports: [FormsModule, MatButtonModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatPaginatorModule, PublicacionCard, FiltrarPublicacionesPipe],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    PublicacionCard,
+    FiltrarPublicacionesPipe,
+  ],
   templateUrl: './publicaciones.html',
   styleUrl: './publicaciones.scss',
 })
@@ -34,45 +42,101 @@ export class Publicaciones implements OnInit {
   pageIndex = 0;
   pageSize = 12;
 
-  ngOnInit() { this.cargar(); }
+  ngOnInit() {
+    this.cargar();
+  }
 
   cargar() {
     this.cargando.set(true);
     this.api.listar({ orden: this.orden(), offset: this.pageIndex * this.pageSize, limit: this.pageSize }).subscribe({
-      next: (r) => { this.publicaciones.set(r.items); this.total.set(r.total); this.cargando.set(false); },
-      error: (e) => { this.cargando.set(false); this.aviso('No se pudieron cargar', e.error?.message); },
+      next: (r) => {
+        this.publicaciones.set(r.items);
+        this.total.set(r.total);
+        this.cargando.set(false);
+      },
+      error: (e) => {
+        this.cargando.set(false);
+        const msg = e.status === 0
+          ? 'No se pudo conectar con el servidor. Comprobá que el backend esté funcionando.'
+          : (e.error?.message ?? 'Ocurrió un error al cargar las publicaciones.');
+        this.aviso('Error al cargar publicaciones', msg);
+      },
     });
   }
 
-  cambiarOrden(valor: 'fecha' | 'likes') { this.orden.set(valor); this.pageIndex = 0; this.cargar(); }
-  cambiarPagina(e: PageEvent) { this.pageIndex = e.pageIndex; this.pageSize = e.pageSize; this.cargar(); }
+  cambiarOrden(valor: 'fecha' | 'likes') {
+    this.orden.set(valor);
+    this.pageIndex = 0;
+    this.cargar();
+  }
+
+  cambiarPagina(e: PageEvent) {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.cargar();
+  }
 
   alternarMeGusta(p: Publicacion) {
     const peticion = p.meGusta ? this.api.quitarMeGusta(p._id) : this.api.darMeGusta(p._id);
     peticion.subscribe({
-      next: (r) => this.publicaciones.update((l) =>
-        l.map((x) => (x._id === p._id ? { ...x, likesCount: r.likesCount, meGusta: r.meGusta } : x))),
-      error: (e) => this.aviso('No se pudo actualizar el me gusta', e.error?.message),
+      next: (r) => {
+        this.publicaciones.update((l) =>
+          l.map((x) => (x._id === p._id ? { ...x, likesCount: r.likesCount, meGusta: r.meGusta } : x)));
+      },
+      error: (e) => {
+        const msg = e.status === 401
+          ? 'Debés haber iniciado sesión para interactuar con las publicaciones.'
+          : (e.error?.message ?? 'No se pudo registrar tu reacción en este momento. Intentá nuevamente.');
+        this.aviso('Reacción no registrada', msg);
+      },
     });
   }
 
-  puedeEliminar(p: Publicacion) { return this.sesion.usuario()?._id === p.autor._id; } // el admin se suma en el Sprint 4
+  puedeEliminar(p: Publicacion) {
+    return this.sesion.usuario()?._id === p.autor._id;
+  }
 
   eliminar(p: Publicacion) {
     this.dialog.open(ModalMensaje, {
-      data: { titulo: 'Eliminar publicación', mensaje: '¿Seguro que querés eliminar esta publicación?', confirmar: true },
+      data: {
+        titulo: 'Eliminar publicación',
+        mensaje: `¿Estás seguro de que querés eliminar "${p.titulo}"? Esta acción no se puede deshacer.`,
+        confirmar: true,
+      },
     }).afterClosed().subscribe((ok) => {
       if (!ok) return;
       this.api.eliminar(p._id).subscribe({
-        next: () => this.cargar(),
-        error: (e) => this.aviso('No se pudo eliminar', e.error?.message),
+        next: () => {
+          this.cargar();
+          this.dialog.open(ModalMensaje, {
+            data: {
+              titulo: 'Publicación eliminada',
+              mensaje: 'La publicación fue eliminada correctamente.',
+            },
+          });
+        },
+        error: (e) => {
+          const msg = e.status === 403
+            ? 'No tenés permisos para eliminar esta publicación.'
+            : (e.error?.message ?? 'Ocurrió un error al intentar eliminar la publicación.');
+          this.aviso('No se pudo eliminar', msg);
+        },
       });
     });
   }
 
   nueva() {
     this.dialog.open(CrearPublicacion).afterClosed().subscribe((creada) => {
-      if (creada) { this.pageIndex = 0; this.cargar(); }
+      if (creada) {
+        this.pageIndex = 0;
+        this.cargar();
+        this.dialog.open(ModalMensaje, {
+          data: {
+            titulo: '¡Publicación creada!',
+            mensaje: 'Tu publicación ha sido compartida exitosamente.',
+          },
+        });
+      }
     });
   }
 

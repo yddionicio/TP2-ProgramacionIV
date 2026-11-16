@@ -1,5 +1,15 @@
 .contenedor { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
-.cabecera { display: flex; justify-content: space-between; align-items: center; }
-.controles { display: flex; gap: 16px; flex-wrap: wrap; }
+.cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.controles { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 .grilla { columns: 4 260px; column-gap: 16px; }
 app-publicacion-card { display: block; break-inside: avoid; margin-bottom: 16px; }
+.mensaje-estado {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  color: #5f6368;
+  font-size: 15px;
+  margin: 24px 0;
+  border: 1px dashed #dadce0;
+}

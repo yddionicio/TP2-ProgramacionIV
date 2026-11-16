@@ -15,8 +15,12 @@ const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 @Component({
   selector: 'app-login',
   imports: [
-    ReactiveFormsModule, RouterLink, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -49,13 +53,16 @@ export class Login {
       },
       error: (e) => {
         this.enviando = false;
-        const msg = e.status === 0
-          ? 'No se pudo conectar con el servidor.'
-          : e.status === 401
-            ? 'Usuario o contraseña incorrectos.'
-            : Array.isArray(e.error?.message)
-              ? e.error.message.join('\n')
-              : (e.error?.message ?? 'Ocurrió un error inesperado.');
+        let msg = 'Ocurrió un error inesperado al iniciar sesión.';
+        if (e.status === 0) {
+          msg = 'No se pudo conectar con el servidor. Comprobá tu conexión a internet o verificá que el backend esté en ejecución.';
+        } else if (e.status === 401) {
+          msg = 'Correo, usuario o contraseña incorrectos. Por favor, verificá tus datos e intentá de nuevo.';
+        } else if (Array.isArray(e.error?.message)) {
+          msg = e.error.message.join('\n');
+        } else if (e.error?.message) {
+          msg = e.error.message;
+        }
         this.dialog.open(ModalMensaje, { data: { titulo: 'No se pudo iniciar sesión', mensaje: msg } });
       },
     });

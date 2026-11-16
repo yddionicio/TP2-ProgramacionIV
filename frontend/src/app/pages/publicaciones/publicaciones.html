@@ -7,7 +7,7 @@
   <div class="controles">
     <mat-form-field appearance="outline">
       <mat-label>Buscar en esta página</mat-label>
-      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Filtrar por título o autor..." />
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Ordenar por</mat-label>
@@ -19,19 +19,31 @@
   </div>
 
   @if (cargando()) {
-    <p>Cargando...</p>
-  } @else if (publicaciones().length === 0) {
-    <p>Todavía no hay publicaciones. ¡Creá la primera!</p>
-  } @else {
-    <div class="grilla">
-      @for (p of publicaciones() | filtrarPublicaciones: busqueda(); track p._id) {
-        <app-publicacion-card
-          [publicacion]="p"
-          [puedeEliminar]="puedeEliminar(p)"
-          (alternarMeGusta)="alternarMeGusta($event)"
-          (eliminar)="eliminar($event)" />
-      }
+    <div class="mensaje-estado">
+      <p>Cargando publicaciones...</p>
     </div>
+  } @else if (publicaciones().length === 0) {
+    <div class="mensaje-estado">
+      <p>Todavía no hay publicaciones. ¡Creá la primera con el botón "Nueva publicación"!</p>
+    </div>
+  } @else {
+    @if ((publicaciones() | filtrarPublicaciones: busqueda()); as filtradas) {
+      @if (filtradas.length === 0) {
+        <div class="mensaje-estado">
+          <p>No se encontraron publicaciones que coincidan con "{{ busqueda() }}".</p>
+        </div>
+      } @else {
+        <div class="grilla">
+          @for (p of filtradas; track p._id) {
+            <app-publicacion-card
+              [publicacion]="p"
+              [puedeEliminar]="puedeEliminar(p)"
+              (alternarMeGusta)="alternarMeGusta($event)"
+              (eliminar)="eliminar($event)" />
+          }
+        </div>
+      }
+    }
   }
 
   <mat-paginator [length]="total()" [pageSize]="pageSize" [pageIndex]="pageIndex"

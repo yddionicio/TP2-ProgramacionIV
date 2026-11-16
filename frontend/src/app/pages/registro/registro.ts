@@ -1,6 +1,10 @@
 import { Component, inject } from '@angular/core';
 import {
-  AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators,
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,6 +16,7 @@ import { Auth } from '../../services/auth';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+const MAX_IMG_SIZE = 10 * 1024 * 1024; // 10 MB
 
 function passwordsIguales(g: AbstractControl): ValidationErrors | null {
   return g.get('password')?.value === g.get('repetirPassword')?.value
@@ -22,8 +27,12 @@ function passwordsIguales(g: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-registro',
   imports: [
-    ReactiveFormsModule, RouterLink, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
@@ -54,7 +63,12 @@ export class Registro {
   onFile(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0] ?? null;
     if (file && !file.type.startsWith('image/')) {
-      this.abrirModal('Archivo inválido', 'La imagen de perfil debe ser una imagen.');
+      this.abrirModal('Archivo inválido', 'Solo se admiten archivos de imagen (JPG, PNG, GIF, WEBP).');
+      this.archivo = null;
+      return;
+    }
+    if (file && file.size > MAX_IMG_SIZE) {
+      this.abrirModal('Imagen muy pesada', 'La imagen de perfil seleccionada supera el límite máximo permitido de 10 MB.');
       this.archivo = null;
       return;
     }
@@ -69,7 +83,7 @@ export class Registro {
 
     const fd = new FormData();
     Object.entries(this.form.getRawValue()).forEach(([k, v]) => fd.append(k, v));
-    if (this.archivo) fd.append('imagenPerfil', this.archivo); // mismo nombre que en el FileInterceptor
+    if (this.archivo) fd.append('imagenPerfil', this.archivo);
 
     this.enviando = true;
     this.auth.registro(fd).subscribe({
@@ -77,18 +91,28 @@ export class Registro {
         this.enviando = false;
         this.dialog
           .open(ModalMensaje, {
-            data: { titulo: 'Registro exitoso', mensaje: 'Tu cuenta fue creada. Ya podés iniciar sesión.' },
+            data: {
+              titulo: '¡Registro exitoso!',
+              mensaje: '¡Bienvenido a PLOT! Tu cuenta fue creada exitosamente. Ya podés iniciar sesión.',
+            },
           })
           .afterClosed()
           .subscribe(() => this.router.navigate(['/login']));
       },
       error: (e) => {
         this.enviando = false;
-        const msg = e.status === 0
-          ? 'No se pudo conectar con el servidor.'
-          : Array.isArray(e.error?.message)
-            ? e.error.message.join('\n')
-            : (e.error?.message ?? 'Ocurrió un error inesperado.');
+        let msg = 'Ocurrió un error inesperado al registrarte.';
+        if (e.status === 0) {
+          msg = 'No se pudo conectar con el servidor. Verificá tu conexión a internet o el estado del backend.';
+        } else if (e.status === 409) {
+          msg = 'El correo electrónico o el nombre de usuario ingresado ya está registrado. Por favor utilizá otro.';
+        } else if (e.status === 413) {
+          msg = 'La foto de perfil seleccionada es demasiado pesada. El límite máximo es de 10 MB.';
+        } else if (Array.isArray(e.error?.message)) {
+          msg = e.error.message.join('\n');
+        } else if (e.error?.message) {
+          msg = e.error.message;
+        }
         this.abrirModal('No se pudo registrar', msg);
       },
     });

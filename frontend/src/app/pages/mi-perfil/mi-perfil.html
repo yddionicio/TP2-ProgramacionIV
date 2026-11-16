@@ -1,28 +1,48 @@
 @if (sesion.usuario(); as u) {
   <section class="contenedor">
     <mat-card class="datos">
-      @if (u.imagenPerfil) { <img class="foto" [src]="u.imagenPerfil" alt="Foto de perfil" /> }
-      <div>
+      @if (u.imagenPerfil) {
+        <img class="foto" [src]="u.imagenPerfil" alt="Foto de perfil" />
+      } @else {
+        <div class="foto avatar-defecto">
+          <span>{{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}</span>
+        </div>
+      }
+      <div class="info">
         <h2>{{ u.nombre }} {{ u.apellido }}</h2>
-        <p>&#64;{{ u.nombreUsuario }} · {{ u.perfil }}</p>
-        <p>{{ u.correo }}</p>
-        <p>Nacimiento: {{ u.fechaNacimiento | date: 'dd/MM/yyyy' }}</p>
-        <p>{{ u.descripcion }}</p>
+        <p class="usuario-rol">&#64;{{ u.nombreUsuario }} · <span class="rol">{{ u.perfil }}</span></p>
+        <p class="correo">{{ u.correo }}</p>
+        <p class="fecha">Fecha de nacimiento: {{ u.fechaNacimiento | date: 'dd/MM/yyyy' }}</p>
+        <p class="descripcion">{{ u.descripcion || 'Sin descripción personal todavía.' }}</p>
       </div>
     </mat-card>
 
-    <h3>Mis últimas 3 publicaciones</h3>
-    @for (p of ultimas(); track p._id) {
-      <mat-card class="item">
-        @if (p.imagenUrl) { <img [src]="p.imagenUrl" [alt]="p.titulo" /> }
-        <mat-card-content>
-          <h4>{{ p.titulo }}</h4>
-          <p>{{ p.mensaje | truncar: 120 }}</p>
-          <small>{{ p.createdAt | tiempoRelativo }} · ♥ {{ p.likesCount }} · Comentarios: 0</small>
-        </mat-card-content>
-      </mat-card>
-    } @empty {
-      <p>Todavía no publicaste nada.</p>
+    <h3>Mis últimas publicaciones</h3>
+    @if (cargando()) {
+      <div class="mensaje-estado">
+        <p>Cargando tus publicaciones...</p>
+      </div>
+    } @else {
+      @for (p of ultimas(); track p._id) {
+        <mat-card class="item">
+          @if (p.imagenUrl) { <img [src]="p.imagenUrl" [alt]="p.titulo" /> }
+          <mat-card-content>
+            <h4>{{ p.titulo }}</h4>
+            <p>{{ p.mensaje | truncar: 120 }}</p>
+            <small>{{ p.createdAt | tiempoRelativo }} · ♥ {{ p.likesCount }} · Comentarios: 0</small>
+          </mat-card-content>
+        </mat-card>
+      } @empty {
+        <div class="mensaje-vacio">
+          <p>Todavía no creaste ninguna publicación. ¡Creá una desde la sección Publicaciones!</p>
+        </div>
+      }
     }
+  </section>
+} @else {
+  <section class="contenedor">
+    <div class="mensaje-estado">
+      <p>Cargando información del perfil...</p>
+    </div>
   </section>
 }

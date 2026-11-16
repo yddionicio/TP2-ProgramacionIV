@@ -3,22 +3,46 @@
   <form [formGroup]="form" class="formulario">
     <mat-form-field appearance="outline">
       <mat-label>Título</mat-label>
-      <input matInput formControlName="titulo" />
-      @if (form.controls.titulo.hasError('required')) { <mat-error>El título es obligatorio</mat-error> }
+      <input matInput formControlName="titulo" placeholder="Ej: Paisaje de montaña" />
+      @if (form.controls.titulo.hasError('required')) {
+        <mat-error>El título es obligatorio</mat-error>
+      } @else if (form.controls.titulo.hasError('maxlength')) {
+        <mat-error>El título no puede superar los 100 caracteres</mat-error>
+      }
     </mat-form-field>
+
     <mat-form-field appearance="outline">
       <mat-label>Mensaje</mat-label>
-      <textarea matInput rows="4" formControlName="mensaje"></textarea>
-      @if (form.controls.mensaje.hasError('required')) { <mat-error>El mensaje es obligatorio</mat-error> }
+      <textarea matInput rows="4" formControlName="mensaje" placeholder="¿Qué estás pensando?"></textarea>
+      @if (form.controls.mensaje.hasError('required')) {
+        <mat-error>El mensaje es obligatorio</mat-error>
+      } @else if (form.controls.mensaje.hasError('maxlength')) {
+        <mat-error>El mensaje no puede superar los 500 caracteres</mat-error>
+      }
     </mat-form-field>
-    <label>Imagen (opcional)
-      <input type="file" accept="image/*" (change)="onFile($event)" />
-    </label>
-    @if (error) { <p class="error">{{ error }}</p> }
+
+    <div class="campo-archivo">
+      <label class="etiqueta-archivo">
+        <span>Imagen (opcional, máx. 10 MB):</span>
+        <input type="file" accept="image/*" (change)="onFile($event)" />
+      </label>
+      @if (archivo) {
+        <div class="archivo-info">
+          <span>✓ Archivo seleccionado: <strong>{{ archivo.name }}</strong> ({{ (archivo.size / 1024 / 1024).toFixed(2) }} MB)</span>
+          <button type="button" mat-button color="warn" (click)="quitarArchivo()">Quitar</button>
+        </div>
+      }
+    </div>
+
+    @if (error) {
+      <div class="alerta-error">
+        <p>{{ error }}</p>
+      </div>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button mat-dialog-close [disabled]="enviando">Cancelar</button>
   <button mat-flat-button (click)="publicar()" [disabled]="enviando">
     {{ enviando ? 'Publicando...' : 'Publicar' }}
   </button>
