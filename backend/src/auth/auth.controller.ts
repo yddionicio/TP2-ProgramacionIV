@@ -7,10 +7,11 @@ import { LoginDto } from './dto/login.dto';
 import { perfilUpload } from '../common/multer.config';
 
 const COOKIE = 'access_token';
+const esProduccion = process.env.NODE_ENV === 'production';
 const opcionesCookie = () => ({
   httpOnly: true, // JavaScript del navegador no puede leerla
-  secure: process.env.NODE_ENV === 'production', // solo por HTTPS en producción
-  sameSite: 'lax' as const,
+  secure: esProduccion, // solo por HTTPS en producción
+  sameSite: (esProduccion ? 'none' : 'lax') as 'none' | 'lax',
   path: '/',
 });
 
