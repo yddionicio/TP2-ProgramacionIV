@@ -21,11 +21,20 @@ export class PublicacionesService {
   async crear(dto: CrearPublicacionDto, usuarioId: string, file?: Express.Multer.File) {
     let imagenUrl: string | undefined;
     let imagenPublicId: string | undefined;
+
     if (file) {
-      const r = await this.cloudinary.subirImagen(file, 'publicaciones');
-      imagenUrl = r.url;
-      imagenPublicId = r.publicId;
+      try {
+        const r = await this.cloudinary.subirImagen(file, 'publicaciones');
+        imagenUrl = r.url;
+        imagenPublicId = r.publicId;
+      } catch (error: any) {
+        console.error('Error al subir imagen de publicación:', error?.message ?? error);
+        // Si el error ya es una HttpException (BadRequest, etc.), lo relanzamos tal cual
+        if (error?.status) throw error;
+        throw new BadRequestException('No se pudo subir la imagen. Intentá publicar sin imagen o con una imagen más pequeña.');
+      }
     }
+
     const pub = await this.pubModel.create({
       ...dto,
       autor: new Types.ObjectId(usuarioId),

@@ -1,50 +1,66 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
-import { createReadStream, unlinkSync } from 'fs';
 
 @Injectable()
 export class CloudinaryService {
+  private configurado = false;
+
   constructor(config: ConfigService) {
-    cloudinary.config({
-      cloud_name: config.get<string>('CLOUDINARY_CLOUD_NAME'),
-      api_key: config.get<string>('CLOUDINARY_API_KEY'),
-      api_secret: config.get<string>('CLOUDINARY_API_SECRET'),
-    });
+    const cloud_name = config.get<string>('CLOUDINARY_CLOUD_NAME');
+    const api_key = config.get<string>('CLOUDINARY_API_KEY');
+    const api_secret = config.get<string>('CLOUDINARY_API_SECRET');
+
+    if (cloud_name && api_key && api_secret) {
+      cloudinary.config({ cloud_name, api_key, api_secret });
+      this.configurado = true;
+    } else {
+      console.warn('⚠️  Cloudinary NO configurado: faltan variables CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY o CLOUDINARY_API_SECRET');
+    }
   }
 
   subirImagen(file: Express.Multer.File, carpeta: string): Promise<{ url: string; publicId: string }> {
+    if (!this.configurado) {
+      return Promise.reject(
+        new InternalServerErrorException('El servicio de imágenes no está configurado. Contactá al administrador.'),
+      );
+    }
+
+    if (!file || !file.buffer || file.buffer.length === 0) {
+      return Promise.reject(
+        new BadRequestException('No se recibió ninguna imagen válida. Por favor, seleccioná una imagen e intentá de nuevo.'),
+      );
+    }
+
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           folder: `redsocial/${carpeta}`,
           resource_type: 'image',
-          transformation: [{ width: 1200, crop: 'limit' }], // limita el tamaño al subir
+          transformation: [{ width: 1200, crop: 'limit' }],
         },
         (error, result) => {
           if (error || !result) {
-            return reject(new BadRequestException(`No se pudo subir la imagen: ${error?.message ?? 'error desconocido'}`));
+            console.error('Cloudinary upload error:', error);
+            return reject(
+              new BadRequestException('No se pudo subir la imagen. Por favor, intentá con otra imagen o sin imagen.'),
+            );
           }
           resolve({
-            // f_auto,q_auto: Cloudinary entrega el mejor formato y calidad para cada navegador
             url: result.secure_url.replace('/upload/', '/upload/f_auto,q_auto/'),
             publicId: result.public_id,
           });
         },
       );
 
-      if (file.buffer) {
-        Readable.from(file.buffer).pipe(stream);
-      } else if (file.path) {
-        const fileStream = createReadStream(file.path);
-        fileStream.pipe(stream);
-        fileStream.on('close', () => {
-          try { unlinkSync(file.path); } catch {}
-        });
-      } else {
-        reject(new BadRequestException('El archivo de imagen no contiene datos válidos'));
-      }
+      // Capturar errores del stream de escritura
+      stream.on('error', (err) => {
+        console.error('Cloudinary stream error:', err);
+        reject(new BadRequestException('Hubo un problema al procesar la imagen. Intentá con otra imagen.'));
+      });
+
+      Readable.from(file.buffer).pipe(stream);
     });
   }
 }
