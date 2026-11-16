@@ -1,9 +1,27 @@
-import { Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { Publicacion } from '../../models/publicacion';
+import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
+import { TruncarPipe } from '../../pipes/truncar-pipe';
+import { PublicacionesApi } from '../../services/publicaciones-api';
+import { Sesion } from '../../services/sesion';
 
 @Component({
-  imports: [],
   selector: 'app-mi-perfil',
-  styleUrl: './mi-perfil.scss',
+  imports: [MatCardModule, DatePipe, TiempoRelativoPipe, TruncarPipe],
   templateUrl: './mi-perfil.html',
+  styleUrl: './mi-perfil.scss',
 })
-export class MiPerfil {}
+export class MiPerfil implements OnInit {
+  sesion = inject(Sesion);
+  private api = inject(PublicacionesApi);
+  ultimas = signal<Publicacion[]>([]);
+
+  ngOnInit() {
+    const u = this.sesion.usuario();
+    if (!u) return;
+    this.api.listar({ orden: 'fecha', usuario: u._id, offset: 0, limit: 3 })
+      .subscribe((r) => this.ultimas.set(r.items));
+  }
+}

@@ -1,0 +1,4 @@
+.contenedor { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+.datos { display: flex; gap: 24px; padding: 24px; margin-bottom: 24px; align-items: center; }
+.foto { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+.item { display: flex; flex-direction: row; gap: 16px; margin-bottom: 12px; img { width: 140px; object-fit: cover; } }

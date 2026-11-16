@@ -1,1 +1,28 @@
-<p>mi-perfil works!</p>
+@if (sesion.usuario(); as u) {
+  <section class="contenedor">
+    <mat-card class="datos">
+      @if (u.imagenPerfil) { <img class="foto" [src]="u.imagenPerfil" alt="Foto de perfil" /> }
+      <div>
+        <h2>{{ u.nombre }} {{ u.apellido }}</h2>
+        <p>&#64;{{ u.nombreUsuario }} · {{ u.perfil }}</p>
+        <p>{{ u.correo }}</p>
+        <p>Nacimiento: {{ u.fechaNacimiento | date: 'dd/MM/yyyy' }}</p>
+        <p>{{ u.descripcion }}</p>
+      </div>
+    </mat-card>
+
+    <h3>Mis últimas 3 publicaciones</h3>
+    @for (p of ultimas(); track p._id) {
+      <mat-card class="item">
+        @if (p.imagenUrl) { <img [src]="p.imagenUrl" [alt]="p.titulo" /> }
+        <mat-card-content>
+          <h4>{{ p.titulo }}</h4>
+          <p>{{ p.mensaje | truncar: 120 }}</p>
+          <small>{{ p.createdAt | tiempoRelativo }} · ♥ {{ p.likesCount }} · Comentarios: 0</small>
+        </mat-card-content>
+      </mat-card>
+    } @empty {
+      <p>Todavía no publicaste nada.</p>
+    }
+  </section>
+}

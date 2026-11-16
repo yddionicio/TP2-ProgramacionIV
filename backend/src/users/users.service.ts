@@ -18,8 +18,13 @@ export class UsersService {
   }
 
   findByIdentificador(identificador: string) {
-    return this.model.findOne({
-      $or: [{ correo: identificador.toLowerCase() }, { nombreUsuario: identificador }],
-    });
+  return this.model
+    .findOne({ $or: [{ correo: identificador.toLowerCase() }, { nombreUsuario: identificador }] })
+    .select('+password'); // el login sí necesita el hash para compararlo
   }
+
+  findById(id: string) {
+  return this.model.findById(id);
+  }
+  
 }

@@ -1,0 +1,23 @@
+<mat-card class="tarjeta">
+  @if (publicacion.imagenUrl) {
+    <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" />
+  }
+  <mat-card-content>
+    <h3>{{ publicacion.titulo | titlecase }}</h3>
+    <p>{{ publicacion.mensaje | truncar: 140 }}</p>
+    <small class="autor" [title]="publicacion.createdAt | date: 'dd/MM/yyyy HH:mm'">
+      @if (publicacion.autor.imagenPerfil) {
+        <img class="avatar" [src]="publicacion.autor.imagenPerfil" alt="" />
+      }
+      {{ publicacion.autor.nombreUsuario }} · {{ publicacion.createdAt | tiempoRelativo }}
+    </small>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button (click)="alternarMeGusta.emit(publicacion)" [attr.aria-pressed]="publicacion.meGusta">
+      {{ publicacion.meGusta ? '♥' : '♡' }} {{ publicacion.likesCount }}
+    </button>
+    @if (puedeEliminar) {
+      <button mat-button color="warn" (click)="eliminar.emit(publicacion)">Eliminar</button>
+    }
+  </mat-card-actions>
+</mat-card>

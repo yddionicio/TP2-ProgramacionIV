@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 export interface ModalData {
   titulo: string;
   mensaje: string;
+  confirmar?: boolean;
 }
 
 @Component({
