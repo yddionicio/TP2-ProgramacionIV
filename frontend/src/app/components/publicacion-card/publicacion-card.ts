@@ -1,0 +1,20 @@
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { Publicacion } from '../../models/publicacion';
+import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
+import { TruncarPipe } from '../../pipes/truncar-pipe';
+
+@Component({
+  selector: 'app-publicacion-card',
+  imports: [MatCardModule, MatButtonModule, DatePipe, TitleCasePipe, TiempoRelativoPipe, TruncarPipe],
+  templateUrl: './publicacion-card.html',
+  styleUrl: './publicacion-card.scss',
+})
+export class PublicacionCard {
+  @Input({ required: true }) publicacion!: Publicacion;
+  @Input() puedeEliminar = false;
+  @Output() alternarMeGusta = new EventEmitter<Publicacion>();
+  @Output() eliminar = new EventEmitter<Publicacion>();
+}

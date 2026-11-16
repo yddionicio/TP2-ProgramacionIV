@@ -1,0 +1,5 @@
+.contenedor { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.cabecera { display: flex; justify-content: space-between; align-items: center; }
+.controles { display: flex; gap: 16px; flex-wrap: wrap; }
+.grilla { columns: 4 260px; column-gap: 16px; }
+app-publicacion-card { display: block; break-inside: avoid; margin-bottom: 16px; }

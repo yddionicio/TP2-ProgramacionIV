@@ -1,24 +1,47 @@
-import { Controller } from '@nestjs/common';
-import { Body, Post, UseInterceptors, UploadedFile, HttpCode, HttpStatus } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { Body, Controller, HttpCode, HttpStatus, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { LoginDto } from './dto/login.dto';
+import type { Response } from 'express';
+import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 import { perfilUpload } from '../common/multer.config';
+
+const COOKIE = 'access_token';
+const opcionesCookie = () => ({
+  httpOnly: true, // JavaScript del navegador no puede leerla
+  secure: process.env.NODE_ENV === 'production', // solo por HTTPS en producción
+  sameSite: 'lax' as const,
+  path: '/',
+});
 
 @Controller('auth')
 export class AuthController {
-  constructor(private auth: AuthService) {}
+  constructor(private readonly auth: AuthService) {}
 
-  @Post('registro') // 201 por defecto
+  @Post('registro') // 201
   @UseInterceptors(FileInterceptor('imagenPerfil', perfilUpload))
-  registro(@Body() dto: RegisterDto, @UploadedFile() file?: Express.Multer.File) {
-    return this.auth.registro(dto, file);
+  async registro(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const { usuario, token } = await this.auth.registro(dto, file);
+    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: 15 * 60 * 1000 });
+    return usuario;
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.OK) // los POST devuelven 201 por defecto; el login exitoso es 200
-  login(@Body() dto: LoginDto) {
-    return this.auth.login(dto);
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    const { usuario, token } = await this.auth.login(dto);
+    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: 15 * 60 * 1000 });
+    return usuario;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie(COOKIE, opcionesCookie());
+    return { mensaje: 'Sesión cerrada' };
   }
 }

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Auth } from '../../services/auth';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
+import { Sesion } from '../../services/sesion';
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -25,7 +26,7 @@ export class Login {
   private auth = inject(Auth);
   private dialog = inject(MatDialog);
   private router = inject(Router);
-
+  private sesion = inject(Sesion);
   enviando = false;
 
   form = this.fb.nonNullable.group({
@@ -41,8 +42,9 @@ export class Login {
 
     this.enviando = true;
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: (usuario) => {
         this.enviando = false;
+        this.sesion.establecer(usuario);
         this.router.navigate(['/publicaciones']);
       },
       error: (e) => {

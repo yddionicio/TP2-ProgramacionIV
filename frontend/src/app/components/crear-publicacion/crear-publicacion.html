@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Nueva publicación</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="titulo" />
+      @if (form.controls.titulo.hasError('required')) { <mat-error>El título es obligatorio</mat-error> }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Mensaje</mat-label>
+      <textarea matInput rows="4" formControlName="mensaje"></textarea>
+      @if (form.controls.mensaje.hasError('required')) { <mat-error>El mensaje es obligatorio</mat-error> }
+    </mat-form-field>
+    <label>Imagen (opcional)
+      <input type="file" accept="image/*" (change)="onFile($event)" />
+    </label>
+    @if (error) { <p class="error">{{ error }}</p> }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button (click)="publicar()" [disabled]="enviando">
+    {{ enviando ? 'Publicando...' : 'Publicar' }}
+  </button>
+</mat-dialog-actions>

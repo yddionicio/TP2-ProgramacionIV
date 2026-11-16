@@ -1,9 +1,13 @@
 <mat-toolbar>
-  <span>Red Social</span>
+  <span>PLOT</span>
   <span class="spacer"></span>
-  <a mat-button routerLink="/publicaciones">Publicaciones</a>
-  <a mat-button routerLink="/mi-perfil">Mi perfil</a>
-  <a mat-button routerLink="/login">Login</a>
-  <a mat-button routerLink="/registro">Registro</a>
+  @if (sesion.usuario(); as u) {
+    <a mat-button routerLink="/publicaciones">Publicaciones</a>
+    <a mat-button routerLink="/mi-perfil">{{ u.nombreUsuario }}</a>
+    <button mat-button (click)="salir()">Salir</button>
+  } @else {
+    <a mat-button routerLink="/login">Login</a>
+    <a mat-button routerLink="/registro">Registro</a>
+  }
 </mat-toolbar>
 <router-outlet />

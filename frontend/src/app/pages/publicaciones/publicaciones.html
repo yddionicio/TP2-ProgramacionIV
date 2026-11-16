@@ -1,1 +1,39 @@
-<p>publicaciones works!</p>
+<section class="contenedor">
+  <header class="cabecera">
+    <h2>Publicaciones</h2>
+    <button mat-flat-button (click)="nueva()">Nueva publicación</button>
+  </header>
+
+  <div class="controles">
+    <mat-form-field appearance="outline">
+      <mat-label>Buscar en esta página</mat-label>
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Ordenar por</mat-label>
+      <mat-select [value]="orden()" (selectionChange)="cambiarOrden($event.value)">
+        <mat-option value="fecha">Más recientes</mat-option>
+        <mat-option value="likes">Más me gusta</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (cargando()) {
+    <p>Cargando...</p>
+  } @else if (publicaciones().length === 0) {
+    <p>Todavía no hay publicaciones. ¡Creá la primera!</p>
+  } @else {
+    <div class="grilla">
+      @for (p of publicaciones() | filtrarPublicaciones: busqueda(); track p._id) {
+        <app-publicacion-card
+          [publicacion]="p"
+          [puedeEliminar]="puedeEliminar(p)"
+          (alternarMeGusta)="alternarMeGusta($event)"
+          (eliminar)="eliminar($event)" />
+      }
+    </div>
+  }
+
+  <mat-paginator [length]="total()" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[6, 12, 24]" (page)="cambiarPagina($event)" />
+</section>
