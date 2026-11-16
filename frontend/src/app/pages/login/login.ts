@@ -55,7 +55,7 @@ export class Login {
         this.enviando = false;
         let msg = 'Ocurrió un error inesperado al iniciar sesión.';
         if (e.status === 0) {
-          msg = 'No se pudo conectar con el servidor. Comprobá tu conexión a internet o verificá que el backend esté en ejecución.';
+          msg = 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.';
         } else if (e.status === 401) {
           msg = 'Correo, usuario o contraseña incorrectos. Por favor, verificá tus datos e intentá de nuevo.';
         } else if (Array.isArray(e.error?.message)) {

@@ -75,7 +75,7 @@ export class CrearPublicacion {
         if (e.status === 413) {
           this.error = 'La imagen o el contenido es demasiado pesado. El límite máximo es de 10 MB.';
         } else if (e.status === 0) {
-          this.error = 'No se pudo conectar con el servidor. Verificá tu conexión o que el backend esté corriendo.';
+          this.error = 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.';
         } else if (Array.isArray(e.error?.message)) {
           this.error = e.error.message.join('. ');
         } else {

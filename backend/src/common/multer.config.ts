@@ -14,3 +14,4 @@ export const imagenUpload = {
 };
 
 export const perfilUpload = imagenUpload;
+

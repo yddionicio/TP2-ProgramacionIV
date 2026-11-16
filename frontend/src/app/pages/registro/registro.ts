@@ -103,7 +103,7 @@ export class Registro {
         this.enviando = false;
         let msg = 'Ocurrió un error inesperado al registrarte.';
         if (e.status === 0) {
-          msg = 'No se pudo conectar con el servidor. Verificá tu conexión a internet o el estado del backend.';
+          msg = 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.';
         } else if (e.status === 409) {
           msg = 'El correo electrónico o el nombre de usuario ingresado ya está registrado. Por favor utilizá otro.';
         } else if (e.status === 413) {

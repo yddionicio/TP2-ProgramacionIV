@@ -57,7 +57,7 @@ export class Publicaciones implements OnInit {
       error: (e) => {
         this.cargando.set(false);
         const msg = e.status === 0
-          ? 'No se pudo conectar con el servidor. Comprobá que el backend esté funcionando.'
+          ? 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.'
           : (e.error?.message ?? 'Ocurrió un error al cargar las publicaciones.');
         this.aviso('Error al cargar publicaciones', msg);
       },
