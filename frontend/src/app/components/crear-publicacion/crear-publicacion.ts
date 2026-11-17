@@ -5,6 +5,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { timeout } from 'rxjs';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -71,20 +72,23 @@ export class CrearPublicacion {
     this.enviando = true;
     this.error = '';
 
-    this.api.crear(fd).subscribe({
-      next: () => this.ref.close(true),
-      error: (e) => {
-        this.enviando = false;
-        if (e.status === 413) {
-          this.error = 'La imagen o el contenido es demasiado pesado. El límite máximo es de 10 MB.';
-        } else if (e.status === 0) {
-          this.error = 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.';
-        } else if (Array.isArray(e.error?.message)) {
-          this.error = e.error.message.join('. ');
-        } else {
-          this.error = e.error?.message ?? 'Ocurrió un error inesperado al publicar. Por favor, intentá nuevamente.';
-        }
-      },
-    });
+    this.api
+      .crear(fd)
+      .pipe(timeout(45000))
+      .subscribe({
+        next: () => this.ref.close(true),
+        error: (e) => {
+          this.enviando = false;
+          if (e.name === 'TimeoutError' || e.status === 0) {
+            this.error = 'El servidor está iniciando o tardó en responder. Por favor, intentá nuevamente.';
+          } else if (e.status === 413) {
+            this.error = 'La imagen o el contenido es demasiado pesado. El límite máximo es de 10 MB.';
+          } else if (Array.isArray(e.error?.message)) {
+            this.error = e.error.message.join('. ');
+          } else {
+            this.error = e.error?.message ?? 'Ocurrió un error inesperado al publicar. Por favor, intentá nuevamente.';
+          }
+        },
+      });
   }
 }

@@ -57,7 +57,17 @@ export class PublicacionesService {
   async listar(q: ListarPublicacionesDto, usuarioId: string) {
     const filtro: Record<string, any> = { activa: true };
     if (q.usuario) filtro.autor = new Types.ObjectId(q.usuario);
-    if (q.categoria) filtro.categoria = q.categoria;
+    if (q.categoria) {
+      if (q.categoria === 'idea') {
+        filtro.$or = [
+          { categoria: 'idea' },
+          { categoria: { $exists: false } },
+          { categoria: null },
+        ];
+      } else {
+        filtro.categoria = q.categoria;
+      }
+    }
     const sort: Record<string, 1 | -1> =
       q.orden === 'likes' ? { likesCount: -1, createdAt: -1 } : { createdAt: -1 };
 
@@ -74,7 +84,11 @@ export class PublicacionesService {
     const likeadas = new Set(likes.map((l) => l.publicacion.toString()));
 
     return {
-      items: items.map((i) => ({ ...i, meGusta: likeadas.has(i._id.toString()) })),
+      items: items.map((i) => ({
+        ...i,
+        categoria: i.categoria || 'idea',
+        meGusta: likeadas.has(i._id.toString()),
+      })),
       total,
       offset: q.offset,
       limit: q.limit,
