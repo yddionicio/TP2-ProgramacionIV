@@ -5,16 +5,25 @@ import { CloudinaryService } from '../common/cloudinary/cloudinary.service';
 import { UsuarioToken } from '../auth/usuario-actual.decorator';
 import { Publicacion, PublicacionDocument } from './schemas/publicacion.schema';
 import { Like, LikeDocument } from './schemas/like.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto';
+import { RankingDto } from './dto/ranking.dto';
 
 const CAMPOS_AUTOR = 'nombreUsuario imagenPerfil'; // solo lo necesario: nunca correo ni contraseña
+
+// Pesos de impacto para el cálculo del ranking.
+// Luego se sumarán comentario, guardado y compartido cuando existan esas funciones.
+export const PESOS_IMPACTO = {
+  like: 1,
+};
 
 @Injectable()
 export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name) private readonly pubModel: Model<PublicacionDocument>,
     @InjectModel(Like.name) private readonly likeModel: Model<LikeDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly cloudinary: CloudinaryService,
   ) {}
 
@@ -48,6 +57,7 @@ export class PublicacionesService {
   async listar(q: ListarPublicacionesDto, usuarioId: string) {
     const filtro: Record<string, any> = { activa: true };
     if (q.usuario) filtro.autor = new Types.ObjectId(q.usuario);
+    if (q.categoria) filtro.categoria = q.categoria;
     const sort: Record<string, 1 | -1> =
       q.orden === 'likes' ? { likesCount: -1, createdAt: -1 } : { createdAt: -1 };
 
@@ -105,5 +115,103 @@ export class PublicacionesService {
     if (r.deletedCount === 0) throw new BadRequestException('No habías dado me gusta a esta publicación');
     const pub = await this.pubModel.findByIdAndUpdate(id, { $inc: { likesCount: -1 } }, { new: true });
     return { likesCount: pub?.likesCount ?? 0, meGusta: false };
+  }
+
+  async ranking(q: RankingDto) {
+    let fechaInicio: Date | null = null;
+    const ahora = new Date();
+    if (q.periodo === 'semana') {
+      fechaInicio = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (q.periodo === 'mes') {
+      fechaInicio = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    const pipeline: any[] = [];
+
+    if (fechaInicio) {
+      pipeline.push({ $match: { createdAt: { $gte: fechaInicio } } });
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: this.pubModel.collection.name,
+          localField: 'publicacion',
+          foreignField: '_id',
+          as: 'publicacionDoc',
+        },
+      },
+      { $unwind: '$publicacionDoc' },
+      {
+        $match: {
+          'publicacionDoc.activa': true,
+          $expr: { $ne: ['$usuario', '$publicacionDoc.autor'] },
+        },
+      },
+      {
+        $group: {
+          _id: '$publicacion',
+          puntos: { $sum: PESOS_IMPACTO.like },
+          publicacionDoc: { $first: '$publicacionDoc' },
+        },
+      },
+      {
+        $sort: {
+          puntos: -1,
+          'publicacionDoc.createdAt': 1,
+          _id: 1,
+        },
+      },
+      { $limit: q.limit },
+      {
+        $lookup: {
+          from: this.userModel.collection.name,
+          localField: 'publicacionDoc.autor',
+          foreignField: '_id',
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                nombreUsuario: 1,
+                imagenPerfil: 1,
+              },
+            },
+          ],
+          as: 'autorDoc',
+        },
+      },
+      {
+        $unwind: {
+          path: '$autorDoc',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    );
+
+    const raw = await this.likeModel.aggregate(pipeline);
+
+    const items = raw.map((r, index) => ({
+      posicion: index + 1,
+      puntos: r.puntos,
+      publicacion: {
+        _id: r.publicacionDoc._id,
+        titulo: r.publicacionDoc.titulo,
+        mensaje: r.publicacionDoc.mensaje,
+        categoria: r.publicacionDoc.categoria || 'idea',
+        imagenUrl: r.publicacionDoc.imagenUrl,
+        createdAt: r.publicacionDoc.createdAt,
+        likesCount: r.publicacionDoc.likesCount,
+        autor: {
+          _id: r.autorDoc?._id ?? r.publicacionDoc.autor,
+          nombreUsuario: r.autorDoc?.nombreUsuario ?? '',
+          imagenPerfil: r.autorDoc?.imagenPerfil ?? '',
+        },
+      },
+    }));
+
+    return {
+      periodo: q.periodo,
+      items,
+    };
   }
 }

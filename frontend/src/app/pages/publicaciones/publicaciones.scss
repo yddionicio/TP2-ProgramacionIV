@@ -1,18 +1,57 @@
 .contenedor { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+.banner-desafio {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #e8f0fe 0%, #f3e8fd 100%);
+  border: 1px solid #d2e3fc;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.desafio-icono {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desafio-info {
+  flex: 1;
+
+  .desafio-etiqueta {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1a73e8;
+    margin-bottom: 4px;
+  }
+
+  .desafio-consigna {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #202124;
+  }
+}
+
+.desafio-accion {
+  white-space: nowrap;
+}
+
 .cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+.filtros-categoria {
+  margin-bottom: 20px;
+}
+
 .controles { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 .grilla { columns: 4 260px; column-gap: 16px; }
 app-publicacion-card { display: block; break-inside: avoid; margin-bottom: 16px; }
-.mensaje-estado {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 32px 16px;
-  text-align: center;
-  color: #5f6368;
-  font-size: 15px;
-  margin: 24px 0;
-  border: 1px dashed #dadce0;
-}
 
 .mensaje-estado {
   background: #f8f9fa;

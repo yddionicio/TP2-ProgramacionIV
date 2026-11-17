@@ -1,8 +1,12 @@
 <mat-toolbar>
-  <span>PLOT</span>
+  <div class="marca">
+    <span class="logo">PLOT</span>
+    <span class="lema">Inspirate. Creá. Compartí.</span>
+  </div>
   <span class="spacer"></span>
   @if (sesion.usuario(); as u) {
     <a mat-button routerLink="/publicaciones">Publicaciones</a>
+    <a mat-button routerLink="/ranking">Ranking</a>
     <a mat-button routerLink="/mi-perfil">{{ u.nombreUsuario }}</a>
     <button mat-button (click)="salir()">Salir</button>
   } @else {

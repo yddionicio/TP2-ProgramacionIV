@@ -7,6 +7,13 @@ export type PublicacionDocument = HydratedDocument<Publicacion>;
 export class Publicacion {
   @Prop({ required: true, trim: true, maxlength: 100 }) titulo: string;
   @Prop({ required: true, trim: true, maxlength: 500 }) mensaje: string;
+  @Prop({
+    type: String,
+    enum: ['idea', 'proyecto', 'consejo', 'solucion'],
+    default: 'idea',
+    index: true,
+  })
+  categoria: string;
   @Prop() imagenUrl?: string;
   @Prop() imagenPublicId?: string;
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true }) autor: Types.ObjectId;

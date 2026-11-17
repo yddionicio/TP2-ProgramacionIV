@@ -4,13 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 @Component({
   selector: 'app-crear-publicacion',
-  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule],
   templateUrl: './crear-publicacion.html',
   styleUrl: './crear-publicacion.scss',
 })
@@ -25,6 +26,7 @@ export class CrearPublicacion {
 
   form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.maxLength(100)]],
+    categoria: ['idea', [Validators.required]],
     mensaje: ['', [Validators.required, Validators.maxLength(500)]],
   });
 
@@ -60,6 +62,7 @@ export class CrearPublicacion {
     }
     const fd = new FormData();
     fd.append('titulo', this.form.controls.titulo.value.trim());
+    fd.append('categoria', this.form.controls.categoria.value);
     fd.append('mensaje', this.form.controls.mensaje.value.trim());
     if (this.archivo) {
       fd.append('imagen', this.archivo);

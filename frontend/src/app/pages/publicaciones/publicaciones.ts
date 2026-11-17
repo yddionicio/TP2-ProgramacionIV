@@ -1,24 +1,48 @@
+import { TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { PublicacionCard } from '../../components/publicacion-card/publicacion-card';
 import { CrearPublicacion } from '../../components/crear-publicacion/crear-publicacion';
+import { PublicacionCard } from '../../components/publicacion-card/publicacion-card';
 import { Publicacion } from '../../models/publicacion';
 import { FiltrarPublicacionesPipe } from '../../pipes/filtrar-publicaciones-pipe';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 import { Sesion } from '../../services/sesion';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
 
+const DESAFIOS_SEMANALES = [
+  'Una solución para ahorrar energía en casa',
+  'Una idea para reutilizar objetos cotidianos y reducir residuos',
+  'Un consejo para mejorar tu productividad diaria sin estrés',
+  'Un proyecto para aprender una nueva habilidad en comunidad',
+  'Una solución digital simple para un problema cotidiano',
+  'Una idea creativa para fomentar la lectura y la creatividad',
+  'Un consejo práctico de bienestar y hábitos saludables',
+  'Un proyecto solidario o colaborativo para ayudar a tu barrio',
+];
+
+function obtenerDesafioSemanal(): string {
+  const ahora = new Date();
+  const inicioAno = new Date(ahora.getFullYear(), 0, 1);
+  const dias = Math.floor((ahora.getTime() - inicioAno.getTime()) / (24 * 60 * 60 * 1000));
+  const numeroSemana = Math.floor(dias / 7);
+  const indice = Math.abs(numeroSemana) % DESAFIOS_SEMANALES.length;
+  return DESAFIOS_SEMANALES[indice];
+}
+
 @Component({
   selector: 'app-publicaciones',
   imports: [
     FormsModule,
+    TitleCasePipe,
     MatButtonModule,
+    MatChipsModule,
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
@@ -37,8 +61,10 @@ export class Publicaciones implements OnInit {
   publicaciones = signal<Publicacion[]>([]);
   total = signal(0);
   orden = signal<'fecha' | 'likes'>('fecha');
+  categoriaFiltro = signal<string>('');
   busqueda = signal('');
   cargando = signal(false);
+  desafioSemanal = signal<string>(obtenerDesafioSemanal());
   pageIndex = 0;
   pageSize = 12;
 
@@ -48,24 +74,38 @@ export class Publicaciones implements OnInit {
 
   cargar() {
     this.cargando.set(true);
-    this.api.listar({ orden: this.orden(), offset: this.pageIndex * this.pageSize, limit: this.pageSize }).subscribe({
-      next: (r) => {
-        this.publicaciones.set(r.items);
-        this.total.set(r.total);
-        this.cargando.set(false);
-      },
-      error: (e) => {
-        this.cargando.set(false);
-        const msg = e.status === 0
-          ? 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.'
-          : (e.error?.message ?? 'Ocurrió un error al cargar las publicaciones.');
-        this.aviso('Error al cargar publicaciones', msg);
-      },
-    });
+    this.api
+      .listar({
+        orden: this.orden(),
+        offset: this.pageIndex * this.pageSize,
+        limit: this.pageSize,
+        categoria: this.categoriaFiltro() || undefined,
+      })
+      .subscribe({
+        next: (r) => {
+          this.publicaciones.set(r.items);
+          this.total.set(r.total);
+          this.cargando.set(false);
+        },
+        error: (e) => {
+          this.cargando.set(false);
+          const msg =
+            e.status === 0
+              ? 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.'
+              : (e.error?.message ?? 'Ocurrió un error al cargar las publicaciones.');
+          this.aviso('Error al cargar publicaciones', msg);
+        },
+      });
   }
 
   cambiarOrden(valor: 'fecha' | 'likes') {
     this.orden.set(valor);
+    this.pageIndex = 0;
+    this.cargar();
+  }
+
+  cambiarCategoria(cat: string) {
+    this.categoriaFiltro.set(cat);
     this.pageIndex = 0;
     this.cargar();
   }
@@ -84,9 +124,10 @@ export class Publicaciones implements OnInit {
           l.map((x) => (x._id === p._id ? { ...x, likesCount: r.likesCount, meGusta: r.meGusta } : x)));
       },
       error: (e) => {
-        const msg = e.status === 401
-          ? 'Debés haber iniciado sesión para interactuar con las publicaciones.'
-          : (e.error?.message ?? 'No se pudo registrar tu reacción en este momento. Intentá nuevamente.');
+        const msg =
+          e.status === 401
+            ? 'Debés haber iniciado sesión para interactuar con las publicaciones.'
+            : (e.error?.message ?? 'No se pudo registrar tu reacción en este momento. Intentá nuevamente.');
         this.aviso('Reacción no registrada', msg);
       },
     });
@@ -97,47 +138,54 @@ export class Publicaciones implements OnInit {
   }
 
   eliminar(p: Publicacion) {
-    this.dialog.open(ModalMensaje, {
-      data: {
-        titulo: 'Eliminar publicación',
-        mensaje: `¿Estás seguro de que querés eliminar "${p.titulo}"? Esta acción no se puede deshacer.`,
-        confirmar: true,
-      },
-    }).afterClosed().subscribe((ok) => {
-      if (!ok) return;
-      this.api.eliminar(p._id).subscribe({
-        next: () => {
-          this.cargar();
-          this.dialog.open(ModalMensaje, {
-            data: {
-              titulo: 'Publicación eliminada',
-              mensaje: 'La publicación fue eliminada correctamente.',
-            },
-          });
+    this.dialog
+      .open(ModalMensaje, {
+        data: {
+          titulo: 'Eliminar publicación',
+          mensaje: `¿Estás seguro de que querés eliminar "${p.titulo}"? Esta acción no se puede deshacer.`,
+          confirmar: true,
         },
-        error: (e) => {
-          const msg = e.status === 403
-            ? 'No tenés permisos para eliminar esta publicación.'
-            : (e.error?.message ?? 'Ocurrió un error al intentar eliminar la publicación.');
-          this.aviso('No se pudo eliminar', msg);
-        },
+      })
+      .afterClosed()
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.api.eliminar(p._id).subscribe({
+          next: () => {
+            this.cargar();
+            this.dialog.open(ModalMensaje, {
+              data: {
+                titulo: 'Publicación eliminada',
+                mensaje: 'La publicación fue eliminada correctamente.',
+              },
+            });
+          },
+          error: (e) => {
+            const msg =
+              e.status === 403
+                ? 'No tenés permisos para eliminar esta publicación.'
+                : (e.error?.message ?? 'Ocurrió un error al intentar eliminar la publicación.');
+            this.aviso('No se pudo eliminar', msg);
+          },
+        });
       });
-    });
   }
 
   nueva() {
-    this.dialog.open(CrearPublicacion).afterClosed().subscribe((creada) => {
-      if (creada) {
-        this.pageIndex = 0;
-        this.cargar();
-        this.dialog.open(ModalMensaje, {
-          data: {
-            titulo: '¡Publicación creada!',
-            mensaje: 'Tu publicación ha sido compartida exitosamente.',
-          },
-        });
-      }
-    });
+    this.dialog
+      .open(CrearPublicacion)
+      .afterClosed()
+      .subscribe((creada) => {
+        if (creada) {
+          this.pageIndex = 0;
+          this.cargar();
+          this.dialog.open(ModalMensaje, {
+            data: {
+              titulo: '¡Publicación creada!',
+              mensaje: 'Tu publicación ha sido compartida exitosamente.',
+            },
+          });
+        }
+      });
   }
 
   private aviso(titulo: string, mensaje?: string) {

@@ -17,6 +17,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/publicaciones/publicaciones').then((m) => m.Publicaciones),
   },
   {
+    path: 'ranking',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/ranking/ranking').then((m) => m.Ranking),
+  },
+  {
     path: 'mi-perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/mi-perfil/mi-perfil').then((m) => m.MiPerfil),

@@ -1,8 +1,27 @@
 <section class="contenedor">
+  <div class="banner-desafio">
+    <div class="desafio-icono">🎯</div>
+    <div class="desafio-info">
+      <span class="desafio-etiqueta">Desafío de la semana</span>
+      <p class="desafio-consigna">"{{ desafioSemanal() }}"</p>
+    </div>
+    <button mat-stroked-button class="desafio-accion" (click)="nueva()">Participar</button>
+  </div>
+
   <header class="cabecera">
     <h2>Publicaciones</h2>
     <button mat-flat-button (click)="nueva()">Nueva publicación</button>
   </header>
+
+  <div class="filtros-categoria">
+    <mat-chip-listbox [value]="categoriaFiltro()" (change)="cambiarCategoria($event.value)" aria-label="Filtrar por categoría">
+      <mat-chip-option value="">Todas</mat-chip-option>
+      <mat-chip-option value="idea">Ideas</mat-chip-option>
+      <mat-chip-option value="proyecto">Proyectos</mat-chip-option>
+      <mat-chip-option value="consejo">Consejos</mat-chip-option>
+      <mat-chip-option value="solucion">Soluciones</mat-chip-option>
+    </mat-chip-listbox>
+  </div>
 
   <div class="controles">
     <mat-form-field appearance="outline">
@@ -24,7 +43,13 @@
     </div>
   } @else if (publicaciones().length === 0) {
     <div class="mensaje-estado">
-      <p>Todavía no hay publicaciones. ¡Creá la primera con el botón "Nueva publicación"!</p>
+      <p>
+        @if (categoriaFiltro()) {
+          Todavía no hay publicaciones en la categoría "{{ categoriaFiltro() | titlecase }}". ¡Inspirate y creá la primera!
+        } @else {
+          Todavía no hay publicaciones en PLOT. ¡Inspirate, creá y compartí tu primera idea, proyecto, consejo o solución!
+        }
+      </p>
     </div>
   } @else {
     @if ((publicaciones() | filtrarPublicaciones: busqueda()); as filtradas) {

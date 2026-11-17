@@ -12,6 +12,16 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="categoria">
+        <mat-option value="idea">Idea</mat-option>
+        <mat-option value="proyecto">Proyecto</mat-option>
+        <mat-option value="consejo">Consejo</mat-option>
+        <mat-option value="solucion">Solución</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
       <mat-label>Mensaje</mat-label>
       <textarea matInput rows="4" formControlName="mensaje" placeholder="¿Qué estás pensando?"></textarea>
       @if (form.controls.mensaje.hasError('required')) {

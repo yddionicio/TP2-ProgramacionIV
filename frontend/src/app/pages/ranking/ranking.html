@@ -1,0 +1,76 @@
+<section class="contenedor">
+  <header class="cabecera-ranking">
+    <div class="titulo-grupo">
+      <h2>Ranking de Impacto</h2>
+      <p class="subtitulo">Descubrí las ideas, proyectos y soluciones que más inspiran a la comunidad PLOT.</p>
+    </div>
+
+    <div class="selector-periodo">
+      <mat-button-toggle-group [value]="periodo()" (change)="cambiarPeriodo($event.value)" aria-label="Seleccionar período">
+        <mat-button-toggle value="semana">Semana</mat-button-toggle>
+        <mat-button-toggle value="mes">Mes</mat-button-toggle>
+        <mat-button-toggle value="total">Total</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </header>
+
+  @if (cargando()) {
+    <div class="mensaje-estado">
+      <p>Calculando impacto de la comunidad...</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="mensaje-estado">
+      <p>Todavía no hay actividad en este período.</p>
+    </div>
+  } @else {
+    <div class="ranking-lista">
+      @for (item of items(); track item.publicacion._id) {
+        <mat-card
+          class="ranking-card"
+          [class.destacado]="item.posicion <= 3"
+          [class.pos-primero]="item.posicion === 1"
+          [class.pos-segundo]="item.posicion === 2"
+          [class.pos-tercero]="item.posicion === 3"
+        >
+          <div class="posicion-col">
+            <span class="medalla">
+              @if (item.posicion === 1) { 🥇 }
+              @else if (item.posicion === 2) { 🥈 }
+              @else if (item.posicion === 3) { 🥉 }
+              @else { #{{ item.posicion }} }
+            </span>
+          </div>
+
+          <div class="contenido-col">
+            <div class="fila-superior">
+              <h3 class="titulo">{{ item.publicacion.titulo | titlecase }}</h3>
+              <mat-chip-set class="chip-set">
+                <mat-chip class="chip-categoria chip-{{ item.publicacion.categoria }}">
+                  {{ item.publicacion.categoria | titlecase }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+
+            <p class="mensaje">{{ item.publicacion.mensaje | truncar: 140 }}</p>
+
+            <div class="autor-fila">
+              @if (item.publicacion.autor.imagenPerfil) {
+                <img class="avatar" [src]="item.publicacion.autor.imagenPerfil" alt="" />
+              }
+              <span class="autor-nombre">{{ item.publicacion.autor.nombreUsuario }}</span>
+              <span class="separador">·</span>
+              <span class="fecha">{{ item.publicacion.createdAt | tiempoRelativo }}</span>
+            </div>
+          </div>
+
+          <div class="puntos-col">
+            <div class="puntos-badge">
+              <span class="puntos-numero">{{ item.puntos }}</span>
+              <span class="puntos-texto">{{ item.puntos === 1 ? 'punto' : 'puntos' }}</span>
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</section>

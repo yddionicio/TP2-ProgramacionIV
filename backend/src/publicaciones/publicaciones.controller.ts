@@ -6,6 +6,7 @@ import { perfilUpload } from '../common/multer.config';
 import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto';
+import { RankingDto } from './dto/ranking.dto';
 import { PublicacionesService } from './publicaciones.service';
 
 @Controller('publicaciones')
@@ -22,6 +23,11 @@ export class PublicacionesController {
   @Get()
   listar(@Query() q: ListarPublicacionesDto, @UsuarioActual() u: UsuarioToken) {
     return this.service.listar(q, u.sub);
+  }
+
+  @Get('ranking')
+  ranking(@Query() q: RankingDto) {
+    return this.service.ranking(q);
   }
 
   @Delete(':id')

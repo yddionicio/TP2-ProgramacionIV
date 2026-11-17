@@ -2,13 +2,14 @@ import { DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { Publicacion } from '../../models/publicacion';
 import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
 import { TruncarPipe } from '../../pipes/truncar-pipe';
 
 @Component({
   selector: 'app-publicacion-card',
-  imports: [MatCardModule, MatButtonModule, DatePipe, TitleCasePipe, TiempoRelativoPipe, TruncarPipe],
+  imports: [MatCardModule, MatButtonModule, MatChipsModule, DatePipe, TitleCasePipe, TiempoRelativoPipe, TruncarPipe],
   templateUrl: './publicacion-card.html',
   styleUrl: './publicacion-card.scss',
 })

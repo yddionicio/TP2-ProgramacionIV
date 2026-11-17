@@ -3,7 +3,14 @@
     <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" />
   }
   <mat-card-content>
-    <h3>{{ publicacion.titulo | titlecase }}</h3>
+    <div class="tarjeta-encabezado">
+      <h3>{{ publicacion.titulo | titlecase }}</h3>
+      @if (publicacion.categoria) {
+        <mat-chip-set class="chip-set">
+          <mat-chip class="chip-categoria chip-{{ publicacion.categoria }}">{{ publicacion.categoria | titlecase }}</mat-chip>
+        </mat-chip-set>
+      }
+    </div>
     <p>{{ publicacion.mensaje | truncar: 140 }}</p>
     <small class="autor" [title]="publicacion.createdAt | date: 'dd/MM/yyyy HH:mm'">
       @if (publicacion.autor.imagenPerfil) {
