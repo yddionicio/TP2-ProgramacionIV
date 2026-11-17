@@ -49,6 +49,7 @@ export class Login {
       next: (usuario) => {
         this.enviando = false;
         this.sesion.establecer(usuario);
+        this.sesion.iniciarTemporizador();
         this.router.navigate(['/publicaciones']);
       },
       error: (e) => {

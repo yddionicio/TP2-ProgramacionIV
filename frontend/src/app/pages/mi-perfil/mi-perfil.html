@@ -25,11 +25,30 @@
     } @else {
       @for (p of ultimas(); track p._id) {
         <mat-card class="item">
-          @if (p.imagenUrl) { <img [src]="p.imagenUrl" [alt]="p.titulo" /> }
+          @if (p.imagenUrl) {
+            <a [routerLink]="['/publicaciones', p._id]" class="enlace-foto">
+              <img [src]="p.imagenUrl" [alt]="p.titulo" />
+            </a>
+          }
           <mat-card-content>
-            <h4>{{ p.titulo }}</h4>
+            <h4>
+              <a [routerLink]="['/publicaciones', p._id]" class="enlace-titulo">{{ p.titulo }}</a>
+            </h4>
             <p>{{ p.mensaje | truncar: 120 }}</p>
-            <small>{{ p.createdAt | tiempoRelativo }} · ♥ {{ p.likesCount }} · Comentarios: 0</small>
+            <small>{{ p.createdAt | tiempoRelativo }} · ♥ {{ p.likesCount }} · Comentarios: {{ p.comentariosCount ?? 0 }}</small>
+
+            @if (p.ultimosComentarios && p.ultimosComentarios.length > 0) {
+              <div class="comentarios-bloque">
+                <span class="comentarios-titulo">Últimos comentarios:</span>
+                @for (c of p.ultimosComentarios; track c._id) {
+                  <div class="comentario-linea">
+                    <span class="comentario-autor">{{ c.autor.nombreUsuario }}:</span>
+                    <span class="comentario-mensaje">{{ c.mensaje | truncar: 90 }}</span>
+                    <small class="comentario-fecha">({{ c.createdAt | tiempoRelativo }})</small>
+                  </div>
+                }
+              </div>
+            }
           </mat-card-content>
         </mat-card>
       } @empty {

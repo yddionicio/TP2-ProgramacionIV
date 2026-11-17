@@ -1,0 +1,18 @@
+<div class="pantalla-cargando">
+  <div class="logo">PLOT</div>
+  <p class="lema">Inspirate. Creá. Compartí.</p>
+
+  @if (cargando()) {
+    <div class="spinner-bloque">
+      <mat-spinner diameter="48"></mat-spinner>
+      @if (demorando()) {
+        <p class="texto-demora">El servidor se está despertando, puede demorar unos segundos...</p>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="error-bloque">
+      <p class="error-mensaje">{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="verificar()">Reintentar</button>
+    </div>
+  }
+</div>

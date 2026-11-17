@@ -1,5 +1,6 @@
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -9,7 +10,16 @@ import { TruncarPipe } from '../../pipes/truncar-pipe';
 
 @Component({
   selector: 'app-publicacion-card',
-  imports: [MatCardModule, MatButtonModule, MatChipsModule, DatePipe, TitleCasePipe, TiempoRelativoPipe, TruncarPipe],
+  imports: [
+    RouterLink,
+    MatCardModule,
+    MatButtonModule,
+    MatChipsModule,
+    DatePipe,
+    TitleCasePipe,
+    TiempoRelativoPipe,
+    TruncarPipe,
+  ],
   templateUrl: './publicacion-card.html',
   styleUrl: './publicacion-card.scss',
 })

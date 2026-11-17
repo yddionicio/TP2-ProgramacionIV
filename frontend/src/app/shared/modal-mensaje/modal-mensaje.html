@@ -2,7 +2,7 @@
 <mat-dialog-content>{{ data.mensaje }}</mat-dialog-content>
 <mat-dialog-actions align="end">
   @if (data.confirmar) {
-    <button mat-button [mat-dialog-close]="false">Cancelar</button>
+    <button mat-button [mat-dialog-close]="false">{{ data.textoCancelar || 'Cancelar' }}</button>
   }
-  <button mat-flat-button [mat-dialog-close]="true">Aceptar</button>
+  <button mat-flat-button [mat-dialog-close]="true">{{ data.textoAceptar || 'Aceptar' }}</button>
 </mat-dialog-actions>

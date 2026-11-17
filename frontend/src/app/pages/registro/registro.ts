@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Auth } from '../../services/auth';
+import { Sesion } from '../../services/sesion';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -40,6 +41,7 @@ function passwordsIguales(g: AbstractControl): ValidationErrors | null {
 export class Registro {
   private fb = inject(FormBuilder);
   private auth = inject(Auth);
+  private sesion = inject(Sesion);
   private dialog = inject(MatDialog);
   private router = inject(Router);
 
@@ -89,6 +91,7 @@ export class Registro {
     this.auth.registro(fd).subscribe({
       next: () => {
         this.enviando = false;
+        this.sesion.iniciarTemporizador();
         this.dialog
           .open(ModalMensaje, {
             data: {

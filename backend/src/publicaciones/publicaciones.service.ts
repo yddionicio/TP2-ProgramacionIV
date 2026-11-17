@@ -87,11 +87,34 @@ export class PublicacionesService {
       items: items.map((i) => ({
         ...i,
         categoria: i.categoria || 'idea',
+        comentariosCount: i.comentariosCount ?? 0,
         meGusta: likeadas.has(i._id.toString()),
       })),
       total,
       offset: q.offset,
       limit: q.limit,
+    };
+  }
+
+  async obtenerPorId(id: string, usuarioId: string) {
+    const pub = await this.pubModel
+      .findOne({ _id: id, activa: true })
+      .populate('autor', CAMPOS_AUTOR);
+
+    if (!pub) {
+      throw new NotFoundException('Esta publicación no existe o fue eliminada');
+    }
+
+    const like = await this.likeModel.exists({
+      usuario: new Types.ObjectId(usuarioId),
+      publicacion: new Types.ObjectId(id),
+    });
+
+    return {
+      ...pub.toObject(),
+      categoria: pub.categoria || 'idea',
+      comentariosCount: pub.comentariosCount ?? 0,
+      meGusta: !!like,
     };
   }
 

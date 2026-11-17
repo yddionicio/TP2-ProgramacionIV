@@ -1,4 +1,11 @@
 .tarjeta { overflow: hidden; border-radius: 16px; }
+
+.enlace-img {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .tarjeta-encabezado {
   display: flex;
   justify-content: space-between;
@@ -11,6 +18,18 @@
     flex: 1;
   }
 }
+
+.enlace-titulo {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #1a73e8;
+    text-decoration: underline;
+  }
+}
+
 .chip-set {
   margin: 0;
 }
@@ -36,5 +55,22 @@
   --mdc-chip-elevated-container-color: #fce8e6;
   --mdc-chip-label-text-color: #c5221f;
 }
+
 .autor { display: flex; align-items: center; gap: 6px; opacity: 0.8; }
 .avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+
+mat-card-actions {
+  display: flex;
+  align-items: center;
+
+  .espaciador {
+    flex: 1;
+  }
+
+  .boton-comentarios {
+    font-size: 13px;
+    color: #5f6368;
+    min-width: auto;
+    padding: 0 8px;
+  }
+}

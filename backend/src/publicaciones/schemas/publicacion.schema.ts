@@ -18,6 +18,7 @@ export class Publicacion {
   @Prop() imagenPublicId?: string;
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true }) autor: Types.ObjectId;
   @Prop({ default: 0, index: true }) likesCount: number; // para ordenar por me gusta
+  @Prop({ default: 0, index: true }) comentariosCount: number; // contador de comentarios
   @Prop({ default: true, index: true }) activa: boolean; // baja lógica
 }
 export const PublicacionSchema = SchemaFactory.createForClass(Publicacion);

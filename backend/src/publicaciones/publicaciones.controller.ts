@@ -30,6 +30,11 @@ export class PublicacionesController {
     return this.service.ranking(q);
   }
 
+  @Get(':id')
+  obtenerPorId(@Param('id', ParseObjectIdPipe) id: string, @UsuarioActual() u: UsuarioToken) {
+    return this.service.obtenerPorId(id, u.sub);
+  }
+
   @Delete(':id')
   eliminar(@Param('id', ParseObjectIdPipe) id: string, @UsuarioActual() u: UsuarioToken) {
     return this.service.eliminar(id, u);

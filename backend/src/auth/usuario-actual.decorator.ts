@@ -4,6 +4,8 @@ export class UsuarioToken {
   sub: string;
   nombreUsuario: string;
   perfil: string;
+  exp?: number;
+  iat?: number;
 }
 
 export const UsuarioActual = createParamDecorator(

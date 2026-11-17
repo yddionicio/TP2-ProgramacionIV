@@ -1,10 +1,16 @@
 <mat-card class="tarjeta">
   @if (publicacion.imagenUrl) {
-    <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" />
+    <a [routerLink]="['/publicaciones', publicacion._id]" class="enlace-img">
+      <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" />
+    </a>
   }
   <mat-card-content>
     <div class="tarjeta-encabezado">
-      <h3>{{ publicacion.titulo | titlecase }}</h3>
+      <h3>
+        <a [routerLink]="['/publicaciones', publicacion._id]" class="enlace-titulo">
+          {{ publicacion.titulo | titlecase }}
+        </a>
+      </h3>
       @if (publicacion.categoria) {
         <mat-chip-set class="chip-set">
           <mat-chip class="chip-categoria chip-{{ publicacion.categoria }}">{{ publicacion.categoria | titlecase }}</mat-chip>
@@ -19,10 +25,14 @@
       {{ publicacion.autor.nombreUsuario }} · {{ publicacion.createdAt | tiempoRelativo }}
     </small>
   </mat-card-content>
-  <mat-card-actions>
+  <mat-card-actions (click)="$event.stopPropagation()">
     <button mat-button (click)="alternarMeGusta.emit(publicacion)" [attr.aria-pressed]="publicacion.meGusta">
       {{ publicacion.meGusta ? '♥' : '♡' }} {{ publicacion.likesCount }}
     </button>
+    <a mat-button [routerLink]="['/publicaciones', publicacion._id]" class="boton-comentarios">
+      💬 {{ publicacion.comentariosCount ?? 0 }}
+    </a>
+    <span class="espaciador"></span>
     @if (puedeEliminar) {
       <button mat-button color="warn" (click)="eliminar.emit(publicacion)">Eliminar</button>
     }

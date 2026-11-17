@@ -1,7 +1,19 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
+import { UsuarioActual, UsuarioToken } from './usuario-actual.decorator';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { perfilUpload } from '../common/multer.config';
@@ -15,6 +27,8 @@ const opcionesCookie = () => ({
   path: '/',
 });
 
+const obtenerJwtExpiresSeg = () => Number(process.env.JWT_EXPIRES_SEG || 900);
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
@@ -27,7 +41,7 @@ export class AuthController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const { usuario, token } = await this.auth.registro(dto, file);
-    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: 15 * 60 * 1000 });
+    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: obtenerJwtExpiresSeg() * 1000 });
     return usuario;
   }
 
@@ -35,7 +49,26 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { usuario, token } = await this.auth.login(dto);
-    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: 15 * 60 * 1000 });
+    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: obtenerJwtExpiresSeg() * 1000 });
+    return usuario;
+  }
+
+  @Post('autorizar')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  autorizar(@UsuarioActual() u: UsuarioToken) {
+    return this.auth.autorizar(u);
+  }
+
+  @Post('refrescar')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async refrescar(
+    @UsuarioActual() u: UsuarioToken,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { usuario, token } = await this.auth.refrescar(u);
+    res.cookie(COOKIE, token, { ...opcionesCookie(), maxAge: obtenerJwtExpiresSeg() * 1000 });
     return usuario;
   }
 

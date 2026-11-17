@@ -6,6 +6,8 @@ export interface ModalData {
   titulo: string;
   mensaje: string;
   confirmar?: boolean;
+  textoAceptar?: string;
+  textoCancelar?: string;
 }
 
 @Component({

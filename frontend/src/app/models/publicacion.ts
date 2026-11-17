@@ -8,6 +8,7 @@ export interface Publicacion {
   imagenUrl?: string;
   autor: { _id: string; nombreUsuario: string; imagenPerfil?: string };
   likesCount: number;
+  comentariosCount?: number;
   meGusta: boolean;
   createdAt: string;
 }

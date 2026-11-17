@@ -1,0 +1,199 @@
+<section class="contenedor">
+  <div class="acciones-superiores">
+    <a mat-button routerLink="/publicaciones" class="boton-volver">
+      ← Volver a publicaciones
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <div class="mensaje-estado">
+      <p>Cargando publicación...</p>
+    </div>
+  } @else if (noExiste()) {
+    <div class="mensaje-estado error-404">
+      <h3>Esta publicación no existe o fue eliminada</h3>
+      <a mat-flat-button routerLink="/publicaciones">Volver a publicaciones</a>
+    </div>
+  } @else if (publicacion(); as p) {
+    <article class="detalle-card">
+      @if (p.imagenUrl) {
+        <div class="imagen-contenedor">
+          <img [src]="p.imagenUrl" [alt]="p.titulo" class="imagen-destacada" />
+        </div>
+      }
+
+      <div class="cuerpo-detalle">
+        <div class="cabecera-info">
+          <div class="titulo-fila">
+            <h1 class="titulo" [class.destacado]="!p.imagenUrl">{{ p.titulo | titlecase }}</h1>
+            @if (p.categoria) {
+              <mat-chip-set>
+                <mat-chip class="chip-categoria chip-{{ p.categoria }}">
+                  {{ p.categoria | titlecase }}
+                </mat-chip>
+              </mat-chip-set>
+            }
+          </div>
+
+          <div class="autor-info">
+            @if (p.autor.imagenPerfil) {
+              <img class="avatar" [src]="p.autor.imagenPerfil" alt="" />
+            }
+            <span class="autor-nombre">{{ p.autor.nombreUsuario }}</span>
+            <span class="separador">·</span>
+            <span class="fecha" [title]="p.createdAt | date: 'dd/MM/yyyy HH:mm'">
+              {{ p.createdAt | date: 'dd/MM/yyyy' }} ({{ p.createdAt | tiempoRelativo }})
+            </span>
+          </div>
+        </div>
+
+        <p class="mensaje" [class.mensaje-grande]="!p.imagenUrl">{{ p.mensaje }}</p>
+
+        <div class="acciones-publicacion">
+          <button
+            mat-stroked-button
+            class="boton-like"
+            (click)="alternarMeGusta()"
+            [attr.aria-pressed]="p.meGusta"
+          >
+            {{ p.meGusta ? '♥ Te gusta' : '♡ Me gusta' }} ({{ p.likesCount }})
+          </button>
+
+          <span class="contador-comentarios">
+            💬 {{ totalComentarios() }} {{ totalComentarios() === 1 ? 'comentario' : 'comentarios' }}
+          </span>
+
+          <span class="espaciador"></span>
+
+          @if (puedeEliminar()) {
+            <button mat-button color="warn" (click)="eliminar()">
+              Eliminar publicación
+            </button>
+          }
+        </div>
+      </div>
+    </article>
+
+    <!-- Sección de comentarios -->
+    <section class="seccion-comentarios">
+      <h2>Comentarios ({{ totalComentarios() }})</h2>
+
+      <!-- Formulario para comentar -->
+      <div class="caja-comentar">
+        <mat-form-field appearance="outline" class="campo-comentario">
+          <mat-label>Escribí un comentario...</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [formControl]="nuevoComentarioControl"
+            placeholder="Compartí tu opinión o consejo para inspirar a otros..."
+            maxlength="500"
+          ></textarea>
+          <mat-hint align="end">{{ nuevoComentarioControl.value.length }} / 500</mat-hint>
+          @if (nuevoComentarioControl.hasError('maxlength')) {
+            <mat-error>El comentario no puede superar los 500 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="acciones-comentar">
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="enviarComentario()"
+            [disabled]="enviandoComentario || !nuevoComentarioControl.value.trim() || nuevoComentarioControl.invalid"
+          >
+            {{ enviandoComentario ? 'Comentando...' : 'Comentar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de comentarios -->
+      @if (cargandoComentarios()) {
+        <div class="mensaje-estado">
+          <p>Cargando comentarios...</p>
+        </div>
+      } @else if (comentarios().length === 0) {
+        <div class="mensaje-estado vacio">
+          <p>Todavía no hay comentarios. ¡Sé la primera persona en comentar!</p>
+        </div>
+      } @else {
+        <div class="lista-comentarios">
+          @for (c of comentarios(); track c._id) {
+            <div class="comentario-item">
+              <div class="comentario-avatar-col">
+                @if (c.autor.imagenPerfil) {
+                  <img class="avatar" [src]="c.autor.imagenPerfil" alt="" />
+                } @else {
+                  <div class="avatar-placeholder">
+                    {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
+                  </div>
+                }
+              </div>
+
+              <div class="comentario-contenido">
+                <div class="comentario-encabezado">
+                  <span class="comentario-autor">{{ c.autor.nombreUsuario }}</span>
+                  <span class="separador">·</span>
+                  <span class="comentario-fecha">{{ c.createdAt | tiempoRelativo }}</span>
+                  @if (c.modificado) {
+                    <span class="etiqueta-editado">(editado)</span>
+                  }
+
+                  <span class="espaciador"></span>
+
+                  @if (esMiComentario(c) && comentarioEnEdicionId() !== c._id) {
+                    <button mat-button class="boton-editar" (click)="iniciarEdicion(c)">
+                      Editar
+                    </button>
+                  }
+                </div>
+
+                @if (comentarioEnEdicionId() === c._id) {
+                  <!-- Modo edición en el mismo lugar -->
+                  <div class="modo-edicion">
+                    <mat-form-field appearance="outline" class="campo-edicion">
+                      <textarea
+                        matInput
+                        rows="2"
+                        [formControl]="mensajeEdicionControl"
+                        maxlength="500"
+                      ></textarea>
+                      <mat-hint align="end">{{ mensajeEdicionControl.value.length }} / 500</mat-hint>
+                    </mat-form-field>
+                    <div class="botones-edicion">
+                      <button mat-button (click)="cancelarEdicion()" [disabled]="guardandoEdicion">
+                        Cancelar
+                      </button>
+                      <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="guardarEdicion(c)"
+                        [disabled]="guardandoEdicion || !mensajeEdicionControl.value.trim() || mensajeEdicionControl.invalid"
+                      >
+                        {{ guardandoEdicion ? 'Guardando...' : 'Guardar' }}
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <p class="comentario-texto">{{ c.mensaje }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (comentarios().length < totalComentarios()) {
+          <div class="cargar-mas-bloque">
+            <button
+              mat-stroked-button
+              (click)="cargarMasComentarios()"
+              [disabled]="cargandoMas()"
+            >
+              {{ cargandoMas() ? 'Cargando más comentarios...' : 'Cargar más comentarios' }}
+            </button>
+          </div>
+        }
+      }
+    </section>
+  }
+</section>
