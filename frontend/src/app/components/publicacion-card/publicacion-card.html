@@ -1,7 +1,7 @@
-<mat-card class="tarjeta">
+<mat-card class="tarjeta" appResaltar colorResaltado="#f8fafc">
   @if (publicacion.imagenUrl) {
     <a [routerLink]="['/publicaciones', publicacion._id]" class="enlace-img">
-      <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" />
+      <img mat-card-image [src]="publicacion.imagenUrl" [alt]="publicacion.titulo" loading="lazy" appImagenFallback />
     </a>
   }
   <mat-card-content>
@@ -19,9 +19,7 @@
     </div>
     <p>{{ publicacion.mensaje | truncar: 140 }}</p>
     <small class="autor" [title]="publicacion.createdAt | date: 'dd/MM/yyyy HH:mm'">
-      @if (publicacion.autor.imagenPerfil) {
-        <img class="avatar" [src]="publicacion.autor.imagenPerfil" alt="" />
-      }
+      <img class="avatar" [src]="publicacion.autor.imagenPerfil" alt="" appImagenFallback />
       {{ publicacion.autor.nombreUsuario }} · {{ publicacion.createdAt | tiempoRelativo }}
     </small>
   </mat-card-content>

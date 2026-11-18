@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -20,28 +20,17 @@ export class AuthService {
     if (dto.password !== dto.repetirPassword) {
       throw new BadRequestException('Las contraseñas no coinciden');
     }
-    const existe = await this.users.findByCorreoOUsuario(dto.correo, dto.nombreUsuario);
-    if (existe) throw new ConflictException('El correo o el usuario ya existe'); // 409
-
-    // se sube la imagen recién después de validar, para no dejar archivos huérfanos
-    let imagenPerfil: string | undefined;
-    if (file) imagenPerfil = (await this.cloudinary.subirImagen(file, 'perfiles')).url;
-
-    const password = await bcrypt.hash(dto.password, 10);
-    const { repetirPassword, ...datos } = dto;
-    const user = await this.users.create({
-      ...datos,
-      fechaNacimiento: new Date(dto.fechaNacimiento),
-      password,
-      imagenPerfil,
-    });
-    return { usuario: this.sanitizar(user), token: await this.firmar(user) };
+    const usuario = await this.users.crearUsuario(dto, file, true);
+    return { usuario, token: await this.firmar(usuario) };
   }
 
   async login(dto: LoginDto) {
     const user = await this.users.findByIdentificador(dto.identificador);
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Credenciales inválidas'); // 401
+    }
+    if (user.activo === false) {
+      throw new ForbiddenException('Tu cuenta está deshabilitada. Contactá a un administrador.'); // 403
     }
     return { usuario: this.sanitizar(user), token: await this.firmar(user) };
   }
@@ -76,8 +65,12 @@ export class AuthService {
   }
 
   // payload mínimo: nunca contraseñas ni datos sensibles, porque el token se puede leer
-  private firmar(user: UserDocument) {
-    return this.jwt.signAsync({ sub: user.id, nombreUsuario: user.nombreUsuario, perfil: user.perfil });
+  private firmar(user: { id?: string; _id?: any; nombreUsuario: string; perfil: string }) {
+    return this.jwt.signAsync({
+      sub: (user.id || user._id)?.toString(),
+      nombreUsuario: user.nombreUsuario,
+      perfil: user.perfil,
+    });
   }
 
   private sanitizar(user: UserDocument) {

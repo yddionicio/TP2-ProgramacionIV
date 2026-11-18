@@ -1,0 +1,53 @@
+<mat-card class="tarjeta-grafico mat-elevation-z1">
+  <mat-card-header>
+    <div class="header-grafico">
+      <div>
+        <mat-card-title>{{ titulo }}</mat-card-title>
+        <span class="total-badge">Total en el período: <strong>{{ total() }}</strong></span>
+      </div>
+      <form class="filtros-fecha" (ngSubmit)="cargarDatos()">
+        <mat-form-field appearance="outline" density="compact" class="input-fecha">
+          <mat-label>Desde</mat-label>
+          <input
+            matInput
+            type="date"
+            [ngModel]="desde()"
+            (ngModelChange)="desde.set($event)"
+            name="desde"
+            required
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" density="compact" class="input-fecha">
+          <mat-label>Hasta</mat-label>
+          <input
+            matInput
+            type="date"
+            [ngModel]="hasta()"
+            (ngModelChange)="hasta.set($event)"
+            name="hasta"
+            required
+          />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="cargando()">
+          Aplicar
+        </button>
+      </form>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content class="contenido-grafico">
+    @if (error()) {
+      <div class="mensaje-estado error">{{ error() }}</div>
+    } @else if (cargando()) {
+      <div class="mensaje-estado">Cargando datos...</div>
+    } @else if (sinDatos()) {
+      <div class="mensaje-estado">Sin datos en este período.</div>
+    }
+
+    <div class="canvas-wrapper" [style.display]="sinDatos() || error() ? 'none' : 'block'">
+      <canvas #canvasRef [attr.aria-label]="titulo"></canvas>
+    </div>
+  </mat-card-content>
+</mat-card>

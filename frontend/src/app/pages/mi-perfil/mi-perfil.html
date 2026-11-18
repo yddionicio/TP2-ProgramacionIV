@@ -1,13 +1,7 @@
 @if (sesion.usuario(); as u) {
   <section class="contenedor">
-    <mat-card class="datos">
-      @if (u.imagenPerfil) {
-        <img class="foto" [src]="u.imagenPerfil" alt="Foto de perfil" />
-      } @else {
-        <div class="foto avatar-defecto">
-          <span>{{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}</span>
-        </div>
-      }
+    <mat-card class="datos" appResaltar colorResaltado="#f8fafc">
+      <img class="foto" [src]="u.imagenPerfil" alt="Foto de perfil" appImagenFallback />
       <div class="info">
         <h2>{{ u.nombre }} {{ u.apellido }}</h2>
         <p class="usuario-rol">&#64;{{ u.nombreUsuario }} · <span class="rol">{{ u.perfil }}</span></p>
@@ -24,10 +18,10 @@
       </div>
     } @else {
       @for (p of ultimas(); track p._id) {
-        <mat-card class="item">
+        <mat-card class="item" appResaltar colorResaltado="#f8fafc">
           @if (p.imagenUrl) {
             <a [routerLink]="['/publicaciones', p._id]" class="enlace-foto">
-              <img [src]="p.imagenUrl" [alt]="p.titulo" />
+              <img [src]="p.imagenUrl" [alt]="p.titulo" appImagenFallback />
             </a>
           }
           <mat-card-content>

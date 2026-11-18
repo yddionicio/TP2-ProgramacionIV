@@ -1,0 +1,118 @@
+<div class="usuarios-contenedor">
+  <div class="encabezado">
+    <div>
+      <h2>Gestión de Usuarios</h2>
+      <p class="subtitulo">Administrá las cuentas de la comunidad PLOT.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="abrirCrear()">
+      + Nuevo usuario
+    </button>
+  </div>
+
+  <div class="tabla-wrapper mat-elevation-z1">
+    <table mat-table [dataSource]="usuarios()" class="mat-table-usuarios">
+      <!-- Avatar Column -->
+      <ng-container matColumnDef="avatar">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let u">
+          <img
+            [src]="u.imagenPerfil"
+            [alt]="u.nombreUsuario"
+            appImagenFallback
+            class="avatar-tabla"
+          />
+        </td>
+      </ng-container>
+
+      <!-- Nombre Column -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Nombre y Apellido</th>
+        <td mat-cell *matCellDef="let u">
+          <strong>{{ u.nombre }} {{ u.apellido }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Usuario Column -->
+      <ng-container matColumnDef="usuario">
+        <th mat-header-cell *matHeaderCellDef>Usuario</th>
+        <td mat-cell *matCellDef="let u">@{{ u.nombreUsuario }}</td>
+      </ng-container>
+
+      <!-- Correo Column -->
+      <ng-container matColumnDef="correo">
+        <th mat-header-cell *matHeaderCellDef>Correo electrónico</th>
+        <td mat-cell *matCellDef="let u">{{ u.correo }}</td>
+      </ng-container>
+
+      <!-- Perfil Column -->
+      <ng-container matColumnDef="perfil">
+        <th mat-header-cell *matHeaderCellDef>Rol</th>
+        <td mat-cell *matCellDef="let u">
+          <span class="badge-rol" [class.admin]="u.perfil === 'administrador'">
+            {{ u.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Estado Column -->
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let u">
+          <mat-chip [highlighted]="u.activo" [class.deshabilitado]="!u.activo">
+            {{ u.activo ? 'Habilitado' : 'Deshabilitado' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Acciones Column -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let u">
+          @if (esMismoUsuario(u)) {
+            <span class="texto-propio">(Tu cuenta)</span>
+          } @else {
+            @if (u.activo) {
+              <button
+                mat-stroked-button
+                color="warn"
+                size="small"
+                (click)="alternarEstado(u)"
+              >
+                Deshabilitar
+              </button>
+            } @else {
+              <button
+                mat-stroked-button
+                color="primary"
+                size="small"
+                (click)="alternarEstado(u)"
+              >
+                Habilitar
+              </button>
+            }
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columnas"
+        appResaltar
+        colorResaltado="#f8fafc"
+      ></tr>
+    </table>
+
+    @if (usuarios().length === 0 && !cargando()) {
+      <div class="sin-datos">No hay usuarios registrados.</div>
+    }
+
+    <mat-paginator
+      [length]="total()"
+      [pageSize]="limit()"
+      [pageSizeOptions]="[5, 10, 25]"
+      (page)="cambiarPagina($event)"
+      aria-label="Páginas de usuarios"
+    ></mat-paginator>
+  </div>
+</div>

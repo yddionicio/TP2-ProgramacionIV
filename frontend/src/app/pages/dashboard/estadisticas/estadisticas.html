@@ -1,0 +1,26 @@
+<div class="estadisticas-contenedor">
+  <div class="encabezado">
+    <h2>Métricas y Estadísticas</h2>
+    <p class="subtitulo">Visualizá la actividad y participación en PLOT.</p>
+  </div>
+
+  <div class="grid-graficos">
+    <app-grafico-estadistica
+      titulo="Publicaciones por usuario"
+      tipo="bar"
+      endpoint="publicaciones-por-usuario"
+    ></app-grafico-estadistica>
+
+    <app-grafico-estadistica
+      titulo="Comentarios por día"
+      tipo="line"
+      endpoint="comentarios-por-dia"
+    ></app-grafico-estadistica>
+
+    <app-grafico-estadistica
+      titulo="Comentarios por publicación"
+      tipo="doughnut"
+      endpoint="comentarios-por-publicacion"
+    ></app-grafico-estadistica>
+  </div>
+</div>

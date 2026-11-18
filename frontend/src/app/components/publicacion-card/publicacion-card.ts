@@ -7,6 +7,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { Publicacion } from '../../models/publicacion';
 import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
 import { TruncarPipe } from '../../pipes/truncar-pipe';
+import { ImagenFallbackDirective } from '../../directives/imagen-fallback.directive';
+import { ResaltarDirective } from '../../directives/resaltar.directive';
 
 @Component({
   selector: 'app-publicacion-card',
@@ -19,6 +21,8 @@ import { TruncarPipe } from '../../pipes/truncar-pipe';
     TitleCasePipe,
     TiempoRelativoPipe,
     TruncarPipe,
+    ImagenFallbackDirective,
+    ResaltarDirective,
   ],
   templateUrl: './publicacion-card.html',
   styleUrl: './publicacion-card.scss',

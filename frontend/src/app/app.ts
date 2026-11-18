@@ -5,10 +5,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { Sesion } from './services/sesion';
 import { ModalMensaje } from './shared/modal-mensaje/modal-mensaje';
+import { SoloAdminDirective } from './directives/solo-admin.directive';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    MatToolbarModule,
+    MatButtonModule,
+    SoloAdminDirective,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

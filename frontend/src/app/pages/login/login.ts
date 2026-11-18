@@ -54,6 +54,11 @@ export class Login {
       },
       error: (e) => {
         this.enviando = false;
+        if (e.status === 403) {
+          const msg = e.error?.message ?? 'Tu cuenta está deshabilitada. Contactá a un administrador.';
+          this.dialog.open(ModalMensaje, { data: { titulo: 'Cuenta deshabilitada', mensaje: msg } });
+          return;
+        }
         let msg = 'Ocurrió un error inesperado al iniciar sesión.';
         if (e.status === 0) {
           msg = 'No pudimos comunicarnos con el servidor. Por favor, comprobá tu conexión a internet e intentá nuevamente.';

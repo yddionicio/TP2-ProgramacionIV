@@ -1,0 +1,103 @@
+<h2 mat-dialog-title>Nuevo usuario</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="formulario">
+    <div class="fila">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+        @if (form.controls.nombre.hasError('required')) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="apellido" />
+        @if (form.controls.apellido.hasError('required')) {
+          <mat-error>El apellido es obligatorio</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Correo</mat-label>
+      <input matInput type="email" formControlName="correo" />
+      @if (form.controls.correo.hasError('required')) {
+        <mat-error>El correo es obligatorio</mat-error>
+      } @else if (form.controls.correo.hasError('email')) {
+        <mat-error>Ingresá un correo válido</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre de usuario</mat-label>
+      <input matInput formControlName="nombreUsuario" />
+      @if (form.controls.nombreUsuario.hasError('required')) {
+        <mat-error>El usuario es obligatorio</mat-error>
+      } @else if (form.controls.nombreUsuario.hasError('pattern')) {
+        <mat-error>3 a 20 caracteres: letras, números, _ o .</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <input matInput type="password" formControlName="password" />
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>La contraseña es obligatoria</mat-error>
+      } @else if (form.controls.password.hasError('pattern')) {
+        <mat-error>Mínimo 8 caracteres, una mayúscula y un número</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Repetir contraseña</mat-label>
+      <input matInput type="password" formControlName="repetirPassword" />
+      @if (form.hasError('noCoinciden') && form.controls.repetirPassword.touched) {
+        <mat-error>Las contraseñas no coinciden</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha de nacimiento</mat-label>
+      <input matInput type="date" formControlName="fechaNacimiento" />
+      @if (form.controls.fechaNacimiento.hasError('required')) {
+        <mat-error>La fecha es obligatoria</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción (opcional)</mat-label>
+      <textarea matInput rows="2" formControlName="descripcion"></textarea>
+    </mat-form-field>
+
+    <div class="grupo-perfil">
+      <label class="etiqueta-radio">Perfil de usuario:</label>
+      <mat-radio-group formControlName="perfil" class="radio-fila">
+        <mat-radio-button value="usuario">Usuario</mat-radio-button>
+        <mat-radio-button value="administrador">Administrador</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="campo-archivo">
+      <label class="etiqueta-archivo">
+        <span>Foto de perfil (opcional, máx. 10 MB):</span>
+        <input type="file" accept="image/*" (change)="onFile($event)" />
+      </label>
+      @if (archivo) {
+        <div class="archivo-info">
+          <span>✓ {{ archivo.name }}</span>
+          <button type="button" mat-button color="warn" (click)="quitarArchivo()">Quitar</button>
+        </div>
+      }
+      @if (errorArchivo) {
+        <p class="error-texto">{{ errorArchivo }}</p>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="enviando">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="enviando">
+    {{ enviando ? 'Creando...' : 'Crear usuario' }}
+  </button>
+</mat-dialog-actions>

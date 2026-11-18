@@ -148,10 +148,20 @@ export class PublicacionesService {
   }
 
   async quitarMeGusta(id: string, usuarioId: string) {
-    const r = await this.likeModel.deleteOne({ publicacion: id, usuario: usuarioId });
-    if (r.deletedCount === 0) throw new BadRequestException('No habías dado me gusta a esta publicación');
-    const pub = await this.pubModel.findByIdAndUpdate(id, { $inc: { likesCount: -1 } }, { new: true });
-    return { likesCount: pub?.likesCount ?? 0, meGusta: false };
+    const r = await this.likeModel.deleteOne({
+      publicacion: new Types.ObjectId(id),
+      usuario: new Types.ObjectId(usuarioId),
+    });
+    if (r.deletedCount > 0) {
+      const pub = await this.pubModel.findByIdAndUpdate(
+        id,
+        { $inc: { likesCount: -1 } },
+        { new: true },
+      );
+      return { likesCount: Math.max(0, pub?.likesCount ?? 0), meGusta: false };
+    }
+    const pub = await this.pubModel.findById(id);
+    return { likesCount: Math.max(0, pub?.likesCount ?? 0), meGusta: false };
   }
 
   async ranking(q: RankingDto) {

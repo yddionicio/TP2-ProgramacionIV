@@ -10,6 +10,8 @@ import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
 import { TruncarPipe } from '../../pipes/truncar-pipe';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 import { Sesion } from '../../services/sesion';
+import { ImagenFallbackDirective } from '../../directives/imagen-fallback.directive';
+import { ResaltarDirective } from '../../directives/resaltar.directive';
 
 export interface PublicacionConComentarios extends Publicacion {
   ultimosComentarios?: Comentario[];
@@ -17,7 +19,15 @@ export interface PublicacionConComentarios extends Publicacion {
 
 @Component({
   selector: 'app-mi-perfil',
-  imports: [RouterLink, MatCardModule, DatePipe, TiempoRelativoPipe, TruncarPipe],
+  imports: [
+    RouterLink,
+    MatCardModule,
+    DatePipe,
+    TiempoRelativoPipe,
+    TruncarPipe,
+    ImagenFallbackDirective,
+    ResaltarDirective,
+  ],
   templateUrl: './mi-perfil.html',
   styleUrl: './mi-perfil.scss',
 })

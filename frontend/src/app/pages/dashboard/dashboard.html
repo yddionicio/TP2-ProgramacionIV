@@ -1,0 +1,31 @@
+<div class="dashboard-layout">
+  <div class="dashboard-header">
+    <div class="dashboard-title-box">
+      <h1>Panel de Administración</h1>
+      <p>Gestión de usuarios y métricas de la plataforma PLOT</p>
+    </div>
+
+    <nav class="dashboard-nav">
+      <a
+        mat-button
+        routerLink="usuarios"
+        routerLinkActive="tab-activa"
+        [routerLinkActiveOptions]="{ exact: false }"
+      >
+        Usuarios
+      </a>
+      <a
+        mat-button
+        routerLink="estadisticas"
+        routerLinkActive="tab-activa"
+        [routerLinkActiveOptions]="{ exact: false }"
+      >
+        Estadísticas
+      </a>
+    </nav>
+  </div>
+
+  <main class="dashboard-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

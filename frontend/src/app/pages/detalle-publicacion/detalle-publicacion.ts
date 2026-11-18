@@ -14,6 +14,7 @@ import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo-pipe';
 import { PublicacionesApi } from '../../services/publicaciones-api';
 import { Sesion } from '../../services/sesion';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
+import { ImagenFallbackDirective } from '../../directives/imagen-fallback.directive';
 
 @Component({
   selector: 'app-detalle-publicacion',
@@ -29,6 +30,7 @@ import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
     MatChipsModule,
     MatFormFieldModule,
     MatInputModule,
+    ImagenFallbackDirective,
   ],
   templateUrl: './detalle-publicacion.html',
   styleUrl: './detalle-publicacion.scss',
@@ -163,7 +165,7 @@ export class DetallePublicacion implements OnInit {
   puedeEliminar(): boolean {
     const pub = this.publicacion();
     if (!pub) return false;
-    return this.sesion.usuario()?._id === pub.autor._id;
+    return this.sesion.usuario()?._id === pub.autor._id || this.sesion.esAdmin();
   }
 
   eliminar() {

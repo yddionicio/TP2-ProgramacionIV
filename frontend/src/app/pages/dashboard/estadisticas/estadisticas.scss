@@ -1,0 +1,26 @@
+.estadisticas-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .encabezado {
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .subtitulo {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  }
+
+  .grid-graficos {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+}

@@ -5,6 +5,7 @@ import { UsersModule } from '../users/users.module';
 import { CloudinaryModule } from '../common/cloudinary/cloudinary.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthService } from './auth.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, RolesGuard],
+  exports: [AuthService, RolesGuard],
 })
 export class AuthModule {}

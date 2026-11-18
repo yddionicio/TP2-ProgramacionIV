@@ -1,0 +1,59 @@
+.crear-usuario-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 480px;
+  max-width: 600px;
+  padding: 8px 0;
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .perfil-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+
+    .label-radio {
+      font-weight: 500;
+      color: #333;
+    }
+
+    mat-radio-group {
+      display: flex;
+      gap: 24px;
+    }
+  }
+
+  .archivo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .archivo-label {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .archivo-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #1b5e20;
+    }
+
+    .error-archivo {
+      color: #d32f2f;
+      font-size: 0.85rem;
+    }
+  }
+}

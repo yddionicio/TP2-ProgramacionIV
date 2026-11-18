@@ -134,7 +134,7 @@ export class Publicaciones implements OnInit {
   }
 
   puedeEliminar(p: Publicacion) {
-    return this.sesion.usuario()?._id === p.autor._id;
+    return this.sesion.usuario()?._id === p.autor._id || this.sesion.esAdmin();
   }
 
   eliminar(p: Publicacion) {

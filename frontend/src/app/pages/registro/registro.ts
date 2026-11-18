@@ -15,15 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { Auth } from '../../services/auth';
 import { Sesion } from '../../services/sesion';
 import { ModalMensaje } from '../../shared/modal-mensaje/modal-mensaje';
+import { PASSWORD_REGEX, passwordsIguales } from '../../shared/validators/auth-validators';
 
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 const MAX_IMG_SIZE = 10 * 1024 * 1024; // 10 MB
-
-function passwordsIguales(g: AbstractControl): ValidationErrors | null {
-  return g.get('password')?.value === g.get('repetirPassword')?.value
-    ? null
-    : { noCoinciden: true };
-}
 
 @Component({
   selector: 'app-registro',

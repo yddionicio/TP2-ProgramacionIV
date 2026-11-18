@@ -7,6 +7,7 @@
   @if (sesion.usuario(); as u) {
     <a mat-button routerLink="/publicaciones">Publicaciones</a>
     <a mat-button routerLink="/ranking">Ranking</a>
+    <a mat-button routerLink="/dashboard" *appSoloAdmin>Panel</a>
     <a mat-button routerLink="/mi-perfil">{{ u.nombreUsuario }}</a>
     <button mat-button (click)="salir()">Salir</button>
   } @else {

@@ -18,7 +18,7 @@
     <article class="detalle-card">
       @if (p.imagenUrl) {
         <div class="imagen-contenedor">
-          <img [src]="p.imagenUrl" [alt]="p.titulo" class="imagen-destacada" />
+          <img [src]="p.imagenUrl" [alt]="p.titulo" class="imagen-destacada" appImagenFallback />
         </div>
       }
 
@@ -36,9 +36,7 @@
           </div>
 
           <div class="autor-info">
-            @if (p.autor.imagenPerfil) {
-              <img class="avatar" [src]="p.autor.imagenPerfil" alt="" />
-            }
+            <img class="avatar" [src]="p.autor.imagenPerfil" alt="" appImagenFallback />
             <span class="autor-nombre">{{ p.autor.nombreUsuario }}</span>
             <span class="separador">·</span>
             <span class="fecha" [title]="p.createdAt | date: 'dd/MM/yyyy HH:mm'">
@@ -121,13 +119,7 @@
           @for (c of comentarios(); track c._id) {
             <div class="comentario-item">
               <div class="comentario-avatar-col">
-                @if (c.autor.imagenPerfil) {
-                  <img class="avatar" [src]="c.autor.imagenPerfil" alt="" />
-                } @else {
-                  <div class="avatar-placeholder">
-                    {{ c.autor.nombreUsuario.charAt(0).toUpperCase() }}
-                  </div>
-                }
+                <img class="avatar" [src]="c.autor.imagenPerfil" alt="" appImagenFallback />
               </div>
 
               <div class="comentario-contenido">
