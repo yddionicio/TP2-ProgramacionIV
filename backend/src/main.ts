@@ -17,11 +17,18 @@ async function bootstrap() {
   console.log('FRONTEND_URL =', JSON.stringify(process.env.FRONTEND_URL));
 
   app.enableCors({
-    origin: [
-      'http://localhost:4200',
-      'https://plot-yd.netlify.app',
-      frontendUrl,
-    ].filter(Boolean) as string[],
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (
+        !origin ||
+        origin.startsWith('http://localhost') ||
+        origin.endsWith('.netlify.app') ||
+        origin === frontendUrl
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true, // permite cookies entre orígenes
   });
 
