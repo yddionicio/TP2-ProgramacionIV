@@ -50,9 +50,9 @@ export class Sesion implements OnDestroy {
 
     let ms: number;
     if (segundosRestantes !== undefined) {
-      // Después de autorizar: avisa cuando falten 5 minutos (300 s) para vencer.
-      // Si faltan menos de 5 minutos, avisa de inmediato.
-      const faltaSeg = segundosRestantes - 300;
+      // Después de autorizar: avisa cuando falten 30 segundos para vencer.
+      // Si faltan menos de 30 segundos, avisa de inmediato.
+      const faltaSeg = segundosRestantes - 30;
       ms = faltaSeg <= 0 ? 0 : faltaSeg * 1000;
     } else {
       // Tras login, registro o refrescar: avisa a los sesionAvisoMs milisegundos.
@@ -96,7 +96,7 @@ export class Sesion implements OnDestroy {
     const ref = this.dialog.open(ModalMensaje, {
       data: {
         titulo: 'Aviso de sesión',
-        mensaje: 'Tu sesión vence en 5 minutos. ¿Querés extenderla?',
+        mensaje: 'Tu sesión vence en 30 segundos. ¿Querés extenderla?',
         confirmar: true,
         textoAceptar: 'Extender sesión',
         textoCancelar: 'Salir',

@@ -41,7 +41,7 @@ export class AuthService {
       throw new UnauthorizedException('Usuario no válido o deshabilitado');
     }
     const ahoraSeg = Math.floor(Date.now() / 1000);
-    const expSeg = u.exp ?? ahoraSeg + (Number(process.env.JWT_EXPIRES_SEG) || 900);
+    const expSeg = u.exp ?? ahoraSeg + (Number(process.env.JWT_EXPIRES_SEG) || 60);
     const sesionExpiraEn = Math.max(0, expSeg - ahoraSeg);
     return {
       ...this.sanitizar(user),

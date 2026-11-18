@@ -27,7 +27,7 @@ const opcionesCookie = () => ({
   path: '/',
 });
 
-const obtenerJwtExpiresSeg = () => Number(process.env.JWT_EXPIRES_SEG || 900);
+const obtenerJwtExpiresSeg = () => Number(process.env.JWT_EXPIRES_SEG || 60);
 
 @Controller('auth')
 export class AuthController {
